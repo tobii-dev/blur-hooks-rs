@@ -24,6 +24,8 @@ use windows::core::HRESULT;
 
 use log::{info, trace};
 
+use crate::dll::fps::limit_fps;
+
 #[derive(Debug)]
 #[implement(IDirect3D9)]
 pub struct MyD3D9 {
@@ -44,9 +46,10 @@ static mut FN_ORG_PRESENT: Option<FnPresent> = None;
 
 unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
 	let fn_EndScene = FN_ORG_ENDSCENE.unwrap();
-	let r = fn_EndScene(this);
+	//let r = fn_EndScene(this);
 	//trace!("HOOK_EndScene!");
-	r
+	//r
+	fn_EndScene(this)
 }
 
 unsafe extern "system" fn HOOK_Present(
@@ -64,6 +67,12 @@ unsafe extern "system" fn HOOK_Present(
 		hdestwindowoverride,
 		pdirtyregion,
 	);
+
+	// This is temporary
+	if let Some(fn_get_fps) = crate::loader::dll_loader::FN_GET_FPS {
+		let fps = fn_get_fps();
+		limit_fps(fps);
+	}
 	//trace!("HOOK_Present!");
 	r
 }
@@ -278,7 +287,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 				ppresentationparameters,
 				ppreturneddeviceinterface,
 			)
-		}?;
+		};
 
 		let dev = unsafe { ppreturneddeviceinterface.as_ref() }
 			.unwrap()
@@ -288,7 +297,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 		set_hook_present(&dev);
 
 		//unsafe { ppreturneddeviceinterface.write(Some(crate::dll::f_direct3d9device::MyDirect3DDevice9::new(dev).into())) };
-		Ok(r)
+		r
 	}
 }
 

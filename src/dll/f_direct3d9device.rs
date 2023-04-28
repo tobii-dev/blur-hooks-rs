@@ -98,9 +98,8 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 
 	fn SetCursorPosition(&self, x: i32, y: i32, flags: u32) {
 		info!("MyDirect3DDevice9::SetCursorPosition_pre");
-		let r = unsafe { self.f.SetCursorPosition(x, y, flags) };
+		unsafe { self.f.SetCursorPosition(x, y, flags) };
 		info!("MyDirect3DDevice9::SetCursorPosition");
-		r
 	}
 
 	fn ShowCursor(
@@ -205,16 +204,14 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 
 	fn SetGammaRamp(&self, iswapchain: u32, flags: u32, pramp: *const D3DGAMMARAMP) {
 		info!("MyDirect3DDevice9::SetGammaRamp_pre");
-		let r = unsafe { self.f.SetGammaRamp(iswapchain, flags, pramp) };
+		unsafe { self.f.SetGammaRamp(iswapchain, flags, pramp) };
 		info!("MyDirect3DDevice9::SetGammaRamp");
-		r
 	}
 
 	fn GetGammaRamp(&self, iswapchain: u32, pramp: *mut D3DGAMMARAMP) {
 		info!("MyDirect3DDevice9::GetGammaRamp_pre");
-		let r = unsafe { self.f.GetGammaRamp(iswapchain, pramp) };
+		unsafe { self.f.GetGammaRamp(iswapchain, pramp) };
 		info!("MyDirect3DDevice9::GetGammaRamp");
-		r
 	}
 
 	fn CreateTexture(
