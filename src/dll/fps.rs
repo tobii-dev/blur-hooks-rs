@@ -13,7 +13,7 @@ pub fn limit_fps(fps: u32) {
 	};
 	let next_frame = last_frame + target_frametime;
 	while current < next_frame {
-		std::thread::yield_now();
+		// std::thread::yield_now(); // OMNOMNOMNOMNOM yummy CPU cycles
 		current = Instant::now();
 	}
 	unsafe { LAST_PRESENT = Some(current) };

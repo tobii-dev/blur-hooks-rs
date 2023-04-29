@@ -53,12 +53,11 @@ fn load(dll_path: &Path) {
 	*/
 
 	//TODO: Find a clean way to communicate between dlls and d3d9 stuff.
-
 	let dll_path = dll_path.as_os_str().to_str().unwrap();
 	let load_result = unsafe { LoadLibraryA(PCSTR::from_raw(dll_path.as_ptr())) };
 	let handle = match load_result {
 		Err(err) => {
-			log::error!("Error while loading: {dll_path} (LoadLibraryA() returns {err})");
+			log::error!("Error while loading: {dll_path} -- LoadLibraryA() returns: {err}");
 			return;
 		}
 		Ok(handle) => {
@@ -66,7 +65,7 @@ fn load(dll_path: &Path) {
 			handle
 		}
 	};
-	// FIXME: Okay... for now this works, but seems ugly heck
+	// FIXME: Okay... for now this works... Ideal way would be to expose a set_fps() fn from this dll
 	let fn_get_fps = unsafe { GetProcAddress(handle, windows::s!("get_fps")) };
 	if let Some(fn_get_fps) = fn_get_fps {
 		let get_fps: extern "C" fn() -> u32 = unsafe { std::mem::transmute(fn_get_fps) };

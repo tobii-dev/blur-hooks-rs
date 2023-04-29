@@ -7,14 +7,12 @@ use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DET
 use crate::dll::f_direct3d9::MyD3D9;
 
 #[no_mangle]
-#[allow(non_snake_case, unused_variables)]
 pub unsafe extern "stdcall" fn f_D3DPERF_SetOptions(dw_options: u32) {
 	info!("f_D3DPERF_SetOptions(dw_options: (DWORD) {dw_options:?})");
 	crate::dll::dll_imports::D3DPERF_SetOptions(dw_options)
 }
 
 #[no_mangle]
-#[allow(non_snake_case, unused_variables)]
 pub unsafe extern "stdcall" fn f_Direct3DCreate9(sdk_version: u32) -> *mut IDirect3D9 {
 	let r = crate::dll::dll_imports::Direct3DCreate9(sdk_version);
 	info!("f_Direct3DCreate9(sdk_version: (UINT) {sdk_version:?}) -> *mut IDirect3D9 {r:?}");
@@ -23,7 +21,6 @@ pub unsafe extern "stdcall" fn f_Direct3DCreate9(sdk_version: u32) -> *mut IDire
 }
 
 #[no_mangle]
-#[allow(non_snake_case, unused_variables)]
 pub unsafe extern "stdcall" fn f_Direct3DCreate9Ex(
 	sdk_version: u32,
 	pp: *mut *mut IDirect3D9Ex,
@@ -35,7 +32,6 @@ pub unsafe extern "stdcall" fn f_Direct3DCreate9Ex(
 
 /// Considering moving this to lib.rs?
 #[no_mangle]
-#[allow(non_snake_case)]
 extern "system" fn DllMain(
 	dll_module: windows::Win32::Foundation::HMODULE,
 	call_reason: u32,

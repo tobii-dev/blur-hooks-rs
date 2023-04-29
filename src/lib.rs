@@ -38,6 +38,7 @@ pub fn init(module: HMODULE) {
 	if r != minhook_sys::MH_OK {
 		log::error!("Unable to minhook_sys::MH_Initialize() (returned {r})");
 	}
+	//crate::loader::dll_loader::load_dlls();
 	std::thread::spawn(crate::loader::dll_loader::load_dlls);
 }
 
