@@ -71,7 +71,9 @@ unsafe extern "system" fn HOOK_Present(
 	// This is temporary
 	if let Some(fn_get_fps) = crate::loader::dll_loader::FN_GET_FPS {
 		let fps = fn_get_fps();
-		limit_fps(fps);
+		if fps > 0 {
+			limit_fps(fps);
+		}
 	}
 	//trace!("HOOK_Present!");
 	r
