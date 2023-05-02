@@ -32,6 +32,9 @@ pub struct MyD3D9 {
 	f: IDirect3D9,
 }
 
+//TODO: because these methods "really" actually belong to IDirect3DDevice9;
+//they should be defined in crate::dll::f_direct3d9device
+
 type FnEndScene = unsafe extern "system" fn(this: IDirect3DDevice9) -> HRESULT;
 type FnPresent = unsafe extern "system" fn(
 	this: IDirect3DDevice9,
@@ -44,6 +47,7 @@ type FnPresent = unsafe extern "system" fn(
 static mut FN_ORG_ENDSCENE: Option<FnEndScene> = None;
 static mut FN_ORG_PRESENT: Option<FnPresent> = None;
 
+//TODO: move me to f_direct3d9device
 unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
 	let fn_EndScene = FN_ORG_ENDSCENE.unwrap();
 	//let r = fn_EndScene(this);
@@ -52,6 +56,7 @@ unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
 	fn_EndScene(this)
 }
 
+//TODO: move me to f_direct3d9device
 unsafe extern "system" fn HOOK_Present(
 	this: IDirect3DDevice9,
 	psourcerect: *const RECT,
@@ -59,6 +64,14 @@ unsafe extern "system" fn HOOK_Present(
 	hdestwindowoverride: HWND,
 	pdirtyregion: *const RGNDATA,
 ) -> HRESULT {
+	{
+		use windows::Win32::Graphics::Direct3D9::D3DDEVICE_CREATION_PARAMETERS;
+		let pparameters = &mut D3DDEVICE_CREATION_PARAMETERS::default();
+		this.GetCreationParameters(pparameters).unwrap();
+		let hwnd = pparameters.hFocusWindow;
+		crate::gui::console::draw(&this, hwnd);
+	}
+
 	let fn_Present = FN_ORG_PRESENT.unwrap();
 	let r = fn_Present(
 		this,

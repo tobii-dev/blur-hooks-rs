@@ -1,6 +1,7 @@
 #![cfg(windows)]
 
 pub mod dll;
+pub mod gui;
 pub mod loader;
 
 use std::fs::File;
