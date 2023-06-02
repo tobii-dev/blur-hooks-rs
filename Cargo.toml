@@ -10,9 +10,10 @@ name = "d3d9"
 crate-type = ["cdylib"]
 
 [dependencies]
-egui = "0.21.0"
-egui-d3d9 = { git = "https://github.com/tobii-dev/egui-d3d9" }
-log = "0.4.17"
+egui = "0.22.0"
+# egui-d3d9 = { git = "https://github.com/tobii-dev/egui-d3d9" }
+egui-d3d9 = "0.2.8"
+log = "0.4.18"
 log-panics = { version = "2.1.0", features = ["with-backtrace"] }
 minhook-sys = "0.1.1"
 simplelog = "0.12.1"

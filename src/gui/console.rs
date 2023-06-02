@@ -1,4 +1,3 @@
-use egui::Context;
 use egui_d3d9::EguiDx9;
 use std::sync::Once;
 use windows::Win32::{
@@ -12,21 +11,19 @@ static mut APP: Option<EguiDx9<i32>> = None;
 /// Original WNDPROC, so we can do CallWindowProcW(...) with it
 static mut FN_ORG_WNDPROC: WNDPROC = None;
 
-fn hello_ui(ctx: &Context, _frame: &mut i32) {
-	log::trace!("I made it to hello_ui(..., _frame={_frame})"); // it reaches this line...
+fn hello_ui(ctx: &egui::Context, _frame: &mut i32) {
 	egui::containers::Window::new("Main").show(ctx, |ui| {
 		ctx.settings_ui(ui);
-		ui.label("Hello world!");
-		//ui.label(egui::RichText::new("Hello world").color(egui::Color32::WHITE));
+		//ui.label("Hello world!");
+		ui.label(egui::RichText::new("Hello world").color(egui::Color32::WHITE));
 	});
-	log::trace!("I made past egui::containers::Window::new(...)!"); // and this one... But after that it crashes?
 }
 
-/// draw() gets called right before the original IDirect3DDevice9::Present() is called.
+/// Called right before the original IDirect3DDevice9::Present(...) is called.
 pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
-	log::trace!("I made it to draw({hwnd:?})");
 	static INIT: Once = Once::new();
 	INIT.call_once(move || {
+		log::trace!("Initializing EguiDx9<_> APP");
 		unsafe {
 			APP = Some(EguiDx9::init(dev, hwnd, hello_ui, 0, true));
 			FN_ORG_WNDPROC = std::mem::transmute(SetWindowLongPtrA(
@@ -37,10 +34,10 @@ pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 		};
 	});
 	let app = unsafe { APP.as_mut().unwrap() };
-	app.present(dev); //Crashes
-	log::trace!("I made it past app.present(dev))"); // doesnt reach this line I think
+	app.present(dev); //FIXME: Crashes on resize?
 }
 
+/// Used to pass GWLP_WNDPROC msg to the EguiDx9 APP (so it can handle clicking / dragging / resizing)
 unsafe extern "stdcall" fn hk_wnd_proc(
 	hwnd: HWND,
 	msg: u32,
