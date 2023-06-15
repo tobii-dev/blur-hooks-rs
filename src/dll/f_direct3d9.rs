@@ -109,9 +109,12 @@ unsafe extern "system" fn HOOK_Reset(
 	this: IDirect3DDevice9,
 	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 ) -> HRESULT {
+	trace!("HOOK_Reset_A!");
 	let fn_Reset = FN_ORG_RESET.unwrap();
-	let r = fn_Reset(this, ppresentationparameters);
-	trace!("HOOK_Reset!");
+	let r = fn_Reset(this.clone(), ppresentationparameters);
+	trace!("HOOK_Reset_B!");
+	crate::gui::console::reset(&this);
+	trace!("HOOK_Reset_C!");
 	r
 }
 

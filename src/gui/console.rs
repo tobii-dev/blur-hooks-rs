@@ -37,6 +37,18 @@ pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 	app.present(dev); //FIXME: Crashes on resize?
 }
 
+
+
+/// Used reallocate the APP textures that got destroyed during a IDirect3DDevice9::Reset(...)
+pub fn reset(dev: &IDirect3DDevice9 /*, _hwnd: HWND*/) {
+	if let Some(app) = unsafe { APP.as_mut() } {
+		log::trace!("Calling app.reset(dev)...");
+		app.reset(dev);
+		log::trace!("app.reset(dev) returned!!");
+	}
+}
+
+
 /// Used to pass GWLP_WNDPROC msg to the EguiDx9 APP (so it can handle clicking / dragging / resizing)
 unsafe extern "stdcall" fn hk_wnd_proc(
 	hwnd: HWND,
