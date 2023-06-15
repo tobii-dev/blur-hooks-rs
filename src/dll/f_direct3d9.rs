@@ -110,10 +110,10 @@ unsafe extern "system" fn HOOK_Reset(
 	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 ) -> HRESULT {
 	trace!("HOOK_Reset_A!");
+	crate::gui::console::reset();
+	trace!("HOOK_Reset_B!");
 	let fn_Reset = FN_ORG_RESET.unwrap();
 	let r = fn_Reset(this, ppresentationparameters);
-	trace!("HOOK_Reset_B!");
-	crate::gui::console::reset();
 	trace!("HOOK_Reset_C!");
 	r
 }

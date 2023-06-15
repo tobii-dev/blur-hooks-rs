@@ -6,16 +6,16 @@ use windows::Win32::{
 	UI::WindowsAndMessaging::{CallWindowProcW, SetWindowLongPtrA, GWLP_WNDPROC, WNDPROC},
 };
 
-static mut APP: Option<EguiDx9<i32>> = None;
+static mut APP: Option<EguiDx9<Vec<&str>>> = None;
 
 /// Original WNDPROC, so we can do CallWindowProcW(...) with it
 static mut FN_ORG_WNDPROC: WNDPROC = None;
 
-fn hello_ui(ctx: &egui::Context, _frame: &mut i32) {
+fn hello_ui(ctx: &egui::Context, state: &mut Vec<&str>) {
 	egui::containers::Window::new("Main").show(ctx, |ui| {
-		ctx.settings_ui(ui);
-		//ui.label("Hello world!");
-		ui.label(egui::RichText::new("Hello world").color(egui::Color32::WHITE));
+		for line in state {
+			ui.label(*line);
+		}
 	});
 }
 
@@ -25,7 +25,13 @@ pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 	INIT.call_once(move || {
 		log::trace!("Initializing EguiDx9<_> APP");
 		unsafe {
-			APP = Some(EguiDx9::init(dev, hwnd, hello_ui, 0, true));
+			APP = Some(EguiDx9::init(
+				dev,
+				hwnd,
+				hello_ui,
+				vec!["Hello, world"],
+				true,
+			));
 			FN_ORG_WNDPROC = std::mem::transmute(SetWindowLongPtrA(
 				hwnd,
 				GWLP_WNDPROC,
@@ -34,21 +40,15 @@ pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 		};
 	});
 	let app = unsafe { APP.as_mut().unwrap() };
-	app.present(dev); //FIXME: Crashes on resize?
+	app.present(dev);
 }
 
-
-
-/// Used reallocate the APP textures that got destroyed during a IDirect3DDevice9::Reset(...)
+/// Reset APP resources that were destroyed during IDirect3DDevice9::Reset(...)
 pub fn reset() {
 	if let Some(app) = unsafe { APP.as_mut() } {
-		log::trace!("Calling app.reset()...");
-		//app.reset(dev);
-		app.reset();
-		log::trace!("app.reset() returned!!");
+		app.pre_reset();
 	}
 }
-
 
 /// Used to pass GWLP_WNDPROC msg to the EguiDx9 APP (so it can handle clicking / dragging / resizing)
 unsafe extern "stdcall" fn hk_wnd_proc(
