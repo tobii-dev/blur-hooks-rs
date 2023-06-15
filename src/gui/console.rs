@@ -40,11 +40,12 @@ pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 
 
 /// Used reallocate the APP textures that got destroyed during a IDirect3DDevice9::Reset(...)
-pub fn reset(dev: &IDirect3DDevice9 /*, _hwnd: HWND*/) {
+pub fn reset() {
 	if let Some(app) = unsafe { APP.as_mut() } {
-		log::trace!("Calling app.reset(dev)...");
-		app.reset(dev);
-		log::trace!("app.reset(dev) returned!!");
+		log::trace!("Calling app.reset()...");
+		//app.reset(dev);
+		app.reset();
+		log::trace!("app.reset() returned!!");
 	}
 }
 

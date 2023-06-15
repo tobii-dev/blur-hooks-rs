@@ -111,9 +111,9 @@ unsafe extern "system" fn HOOK_Reset(
 ) -> HRESULT {
 	trace!("HOOK_Reset_A!");
 	let fn_Reset = FN_ORG_RESET.unwrap();
-	let r = fn_Reset(this.clone(), ppresentationparameters);
+	let r = fn_Reset(this, ppresentationparameters);
 	trace!("HOOK_Reset_B!");
-	crate::gui::console::reset(&this);
+	crate::gui::console::reset();
 	trace!("HOOK_Reset_C!");
 	r
 }
