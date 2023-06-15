@@ -32,6 +32,9 @@ pub struct MyD3D9 {
 	f: IDirect3D9,
 }
 
+//TODO: because these methods "really" actually belong to IDirect3DDevice9;
+//they should be defined in crate::dll::f_direct3d9device
+
 type FnEndScene = unsafe extern "system" fn(this: IDirect3DDevice9) -> HRESULT;
 type FnPresent = unsafe extern "system" fn(
 	this: IDirect3DDevice9,
@@ -41,9 +44,16 @@ type FnPresent = unsafe extern "system" fn(
 	pdirtyregion: *const RGNDATA,
 ) -> HRESULT;
 
+type FnReset = unsafe extern "system" fn(
+	this: IDirect3DDevice9,
+	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
+) -> HRESULT;
+
 static mut FN_ORG_ENDSCENE: Option<FnEndScene> = None;
 static mut FN_ORG_PRESENT: Option<FnPresent> = None;
+static mut FN_ORG_RESET: Option<FnReset> = None;
 
+//TODO: move me to f_direct3d9device
 unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
 	let fn_EndScene = FN_ORG_ENDSCENE.unwrap();
 	//let r = fn_EndScene(this);
@@ -52,6 +62,7 @@ unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
 	fn_EndScene(this)
 }
 
+//TODO: move me to f_direct3d9device
 unsafe extern "system" fn HOOK_Present(
 	this: IDirect3DDevice9,
 	psourcerect: *const RECT,
@@ -59,6 +70,20 @@ unsafe extern "system" fn HOOK_Present(
 	hdestwindowoverride: HWND,
 	pdirtyregion: *const RGNDATA,
 ) -> HRESULT {
+	{
+		use windows::Win32::Graphics::Direct3D9::D3DDEVICE_CREATION_PARAMETERS;
+		let pparameters = &mut D3DDEVICE_CREATION_PARAMETERS::default();
+		match this.GetCreationParameters(pparameters) {
+			Ok(_) => {
+				let hwnd = pparameters.hFocusWindow;
+				crate::gui::console::draw(&this, hwnd);
+			}
+			Err(err) => {
+				log::warn!("GetCreationParameters() returned {err}");
+			}
+		}
+	}
+
 	let fn_Present = FN_ORG_PRESENT.unwrap();
 	let r = fn_Present(
 		this,
@@ -76,6 +101,20 @@ unsafe extern "system" fn HOOK_Present(
 		}
 	}
 	//trace!("HOOK_Present!");
+	r
+}
+
+//TODO: move me to f_direct3d9device
+unsafe extern "system" fn HOOK_Reset(
+	this: IDirect3DDevice9,
+	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
+) -> HRESULT {
+	trace!("HOOK_Reset_A!");
+	crate::gui::console::reset();
+	trace!("HOOK_Reset_B!");
+	let fn_Reset = FN_ORG_RESET.unwrap();
+	let r = fn_Reset(this, ppresentationparameters);
+	trace!("HOOK_Reset_C!");
 	r
 }
 
@@ -297,6 +336,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 			.unwrap();
 		set_hook_endscene(&dev);
 		set_hook_present(&dev);
+		set_hook_reset(&dev);
 
 		//unsafe { ppreturneddeviceinterface.write(Some(crate::dll::f_direct3d9device::MyDirect3DDevice9::new(dev).into())) };
 		r
@@ -340,5 +380,24 @@ fn set_hook_present(dev: &IDirect3DDevice9) {
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {
 		panic!("MH_EnableHook(IDirect3DDevice9::Present) returned: {v}!");
+	}
+}
+
+fn set_hook_reset(dev: &IDirect3DDevice9) {
+	let f = dev.vtable().Reset;
+	let fn_ptr: *mut c_void = f as *mut _;
+	let fn_hook_ptr: *mut c_void = HOOK_Reset as *mut _;
+	let fn_saved: *mut *mut c_void = &mut std::ptr::null_mut();
+	let v = unsafe { minhook_sys::MH_CreateHook(fn_ptr, fn_hook_ptr, fn_saved) };
+	if v != minhook_sys::MH_OK {
+		let v = v.to_string();
+		panic!("MH_CreateHook(IDirect3DDevice9::Reset) returned: {v}!");
+	}
+	unsafe {
+		FN_ORG_RESET = Some(std::mem::transmute(*fn_saved));
+	}
+	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
+	if v != minhook_sys::MH_OK {
+		panic!("MH_EnableHook(IDirect3DDevice9::Reset) returned: {v}!");
 	}
 }
