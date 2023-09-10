@@ -8,9 +8,10 @@ env:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Install rustup i686-pc-windows-msvc target
+      run: rustup target add i686-pc-windows-msvc
     - name: Build
       run: cargo +nightly build --release --target=i686-pc-windows-msvc
