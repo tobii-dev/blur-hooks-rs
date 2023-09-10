@@ -14,4 +14,4 @@ jobs:
     - name: Install rustup i686-pc-windows-msvc target
       run: rustup target add i686-pc-windows-msvc
     - name: Build
-      run: cargo +nightly build --release --target=i686-pc-windows-msvc
+      run: cargo build --release --target=i686-pc-windows-msvc
