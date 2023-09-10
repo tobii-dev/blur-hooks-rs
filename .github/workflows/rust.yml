@@ -7,16 +7,15 @@ env:
 
 jobs:
   build:
-
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Install rustup i686-pc-windows-msvc target
-      run: rustup target add i686-pc-windows-msvc
+    - uses: actions/checkout@v4
+    #- name: Install rustup i686-pc-windows-msvc target
+    #  run: rustup target add i686-pc-windows-msvc
     - name: Build
-      run: cargo build --release --target=i686-pc-windows-msvc
+      run: cargo build --verbose --release --target=i686-pc-windows-msvc
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3.1.3
+      uses: actions/upload-artifact@v3
       with:
         name: d3d9.dll
         path: target/i686-pc-windows-msvc/release/d3d9.dll
