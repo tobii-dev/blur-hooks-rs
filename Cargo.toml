@@ -10,9 +10,11 @@ name = "d3d9"
 crate-type = ["cdylib"]
 
 [dependencies]
+blur-plugins-core = { git = "https://github.com/tobii-dev/blur-plugins-core" }
 egui = "0.22.0"
-egui-d3d9 = "0.3.1"
-log = "0.4.19"
+egui-d3d9 = "0.3.4"
+libloading = "0.8.0"
+log = "0.4.20"
 log-panics = { version = "2.1.0", features = ["with-backtrace"] }
 minhook-sys = "0.1.1"
 simplelog = "0.12.1"

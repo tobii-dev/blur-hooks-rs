@@ -1,21 +1,22 @@
 use std::path::Path;
 
-use windows::{
-	core::PCSTR,
-	Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryA},
-};
+use windows::{core::PCSTR, Win32::System::LibraryLoader::LoadLibraryA};
 
 pub fn load_dlls() {
 	let path_dlls = Path::new(".").join("amax").join("dlls");
 	let _path_display = path_dlls.display();
 	log::info!("Loading dlls from: {_path_display}");
-	let entries = path_dlls.read_dir().expect("read_dir() failed...");
+	let entries = path_dlls
+		.read_dir()
+		.expect(std::format!("read_dir({_path_display}) failed...").as_str());
 	for entry in entries.filter_map(|e| e.ok()).map(|e| e.path()) {
 		if let Some(ext) = entry.extension() {
 			let ext = ext.to_str().unwrap();
 			match ext {
 				"dll" | "asi" => {
+					log::info!("Loading dll: {}", &entry.display());
 					load(&entry);
+					//libloading_load_dll(&entry); // Y U NO WORK :(
 				}
 				_ => {
 					let l = entry.display();
@@ -26,32 +27,8 @@ pub fn load_dlls() {
 	}
 }
 
-/// This is called (every frame) from d3d9 Device Present() hook to limit fps
-pub static mut FN_GET_FPS: Option<extern "C" fn() -> u32> = None;
-
+#[allow(dead_code)]
 fn load(dll_path: &Path) {
-	/* FIXME: why does this not throw errors at me sometimes and not other times?
-	use libloading::{Library, Symbol};
-	let lib = unsafe { Library::new(dll_path.as_os_str()) };
-	match lib {
-		Ok(lib) => {
-			let uwu: Result<Symbol<extern "C" fn(i32) -> i32>, _> = unsafe { lib.get(b"loader_uwu") };
-			match uwu {
-				Ok(loader_uwu) => {
-					let x = loader_uwu(2);
-					log::trace!("loader_uwu(2) = {x}");
-				},
-				Err(err) => {
-					log::error!("{err}");
-				},
-			}
-		},
-		Err(err) => {
-			log::error!(": {err}");
-		},
-	};
-	*/
-
 	//TODO: Find a clean way to communicate between dlls and d3d9 stuff.
 	let dll_path = dll_path.as_os_str().to_str().unwrap();
 	let load_result = unsafe { LoadLibraryA(PCSTR::from_raw(dll_path.as_ptr())) };
@@ -65,10 +42,18 @@ fn load(dll_path: &Path) {
 			handle
 		}
 	};
-	// FIXME: Okay... for now this works... Ideal way would be to expose a set_fps() fn from this dll
-	let fn_get_fps = unsafe { GetProcAddress(handle, windows::s!("get_fps")) };
-	if let Some(fn_get_fps) = fn_get_fps {
-		let get_fps: extern "C" fn() -> u32 = unsafe { std::mem::transmute(fn_get_fps) };
-		unsafe { FN_GET_FPS = Some(get_fps) };
-	}
+	unsafe { crate::api::blur_api::BLUR_API.register_plugin_from_dll_handle(handle) };
+}
+
+#[deprecated]
+pub fn libloading_load_dll(dll_path: &Path) {
+	let lib = unsafe { libloading::Library::new(dll_path.as_os_str()) };
+	let _lib = match lib {
+		Ok(lib) => lib,
+		Err(err) => {
+			log::error!(": {err}");
+			return;
+		}
+	};
+	//unsafe { crate::api::blur_api::BLUR_API.register_plugin_from_libloading_library(lib) };
 }

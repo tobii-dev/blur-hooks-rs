@@ -16,6 +16,8 @@ fn hello_ui(ctx: &egui::Context, state: &mut Vec<&str>) {
 		for line in state {
 			ui.label(*line);
 		}
+		let fps = unsafe { crate::api::blur_api::BLUR_API.fps };
+		ui.label(fps.to_string());
 	});
 }
 
@@ -24,14 +26,9 @@ pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 	static INIT: Once = Once::new();
 	INIT.call_once(move || {
 		log::trace!("Initializing EguiDx9<_> APP");
+		let v = vec!["hello :>"];
 		unsafe {
-			APP = Some(EguiDx9::init(
-				dev,
-				hwnd,
-				hello_ui,
-				vec!["Hello, world"],
-				true,
-			));
+			APP = Some(EguiDx9::init(dev, hwnd, hello_ui, v, true));
 			FN_ORG_WNDPROC = std::mem::transmute(SetWindowLongPtrA(
 				hwnd,
 				GWLP_WNDPROC,

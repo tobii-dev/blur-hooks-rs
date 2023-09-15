@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 
-pub fn limit_fps(fps: u32) {
-	let target_frametime = Duration::from_secs(1) / fps;
+pub fn limit_fps(fps: f64) {
+	let target_frametime = Duration::from_secs(1).div_f64(fps);
 	let mut current = Instant::now();
 	static mut LAST_PRESENT: Option<Instant> = None;
 	let last_frame = unsafe {

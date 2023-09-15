@@ -38,9 +38,7 @@ extern "system" fn DllMain(
 	_reserved: *mut std::ffi::c_void,
 ) -> i32 {
 	match call_reason {
-		DLL_PROCESS_ATTACH => {
-			crate::init(dll_module);
-		}
+		DLL_PROCESS_ATTACH => crate::init(dll_module),
 		DLL_PROCESS_DETACH => crate::free(dll_module),
 		_ => (),
 	}

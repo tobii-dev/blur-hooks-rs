@@ -1,5 +1,6 @@
 #![cfg(windows)]
 
+pub mod api;
 pub mod dll;
 pub mod gui;
 pub mod loader;
@@ -39,12 +40,13 @@ pub fn init(module: HMODULE) {
 	if r != minhook_sys::MH_OK {
 		log::error!("Unable to minhook_sys::MH_Initialize() (returned {r})");
 	}
-	//crate::loader::dll_loader::load_dlls();
-	std::thread::spawn(crate::loader::dll_loader::load_dlls);
+	crate::loader::dll_loader::load_dlls();
+	//std::thread::spawn(crate::loader::dll_loader::load_dlls);
 }
 
 pub fn free(module: HMODULE) {
 	log::info!("Bye! {module:?}");
+	crate::api::blur_api::free_plugins();
 	let r = unsafe { minhook_sys::MH_Uninitialize() };
 	if r != minhook_sys::MH_OK {
 		log::error!("Unable to minhook_sys::MH_Uninitialize() (returned {r})");
