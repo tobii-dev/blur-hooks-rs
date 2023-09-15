@@ -1,6 +1,11 @@
-name: Rust
+name: Blur-hooks-rs Build
 
-on: [workflow_dispatch]
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+
 
 env:
   CARGO_TERM_COLOR: always
@@ -9,13 +14,26 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    #- name: Install rustup i686-pc-windows-msvc target
-    #  run: rustup target add i686-pc-windows-msvc
-    - name: Build
+    - name: Checkout sources
+      uses: actions/checkout@v4
+
+    - name: Build debug [msvc]
+      run: cargo build --verbose --target=i686-pc-windows-msvc
+      
+    - name: Build release [msvc]
       run: cargo build --verbose --release --target=i686-pc-windows-msvc
-    - name: Upload artifacts
+      
+    - name: Collect debug artifact
       uses: actions/upload-artifact@v3
       with:
-        name: d3d9.dll
-        path: target/i686-pc-windows-msvc/release/d3d9.dll
+        name: blur-hook-rs_debug
+        path: |
+          ./target/i686-pc-windows-msvc/debug/d3d9.dll
+          ./target/i686-pc-windows-msvc/debug/d3d9.pdb
+
+    - name: Collect release artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: blur-hook-rs_release
+        path: |
+          ./target/i686-pc-windows-msvc/release/d3d9.dll
