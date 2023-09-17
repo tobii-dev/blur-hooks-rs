@@ -1,43 +1,46 @@
 use std::path::Path;
 
-use windows::{core::PCSTR, Win32::System::LibraryLoader::LoadLibraryA};
+use windows::{core::HSTRING, Win32::System::LibraryLoader::LoadLibraryW};
 
 pub fn load_dlls() {
 	let path_dlls = Path::new(".").join("amax").join("dlls");
 	let _path_display = path_dlls.display();
-	log::info!("Loading dlls from: {_path_display}");
+	log::info!("Loading DLLs from: {_path_display}");
 	let entries = path_dlls
 		.read_dir()
 		.unwrap_or_else(|_| panic!("read_dir({_path_display}) failed..."));
 	for entry in entries.filter_map(|e| e.ok()).map(|e| e.path()) {
-		if let Some(ext) = entry.extension() {
-			let ext = ext.to_str().unwrap();
-			match ext {
-				"dll" | "asi" => {
-					log::info!("Loading dll: {}", &entry.display());
-					load(&entry);
-					//libloading_load_dll(&entry); // Y U NO WORK :(
-				}
-				_ => {
-					let l = entry.display();
-					log::info!("ignoring: {l}");
-				}
-			};
-		}
+		let Some(ext) = entry.extension() else {
+			continue;
+		};
+		let Some(ext) = ext.to_str() else {
+			continue;
+		};
+		let entry_display = &entry.display();
+		match ext {
+			"dll" | "asi" => {
+				log::info!("Loading: {entry_display}");
+				load_dll(&entry);
+				//libloading_load_dll(&entry); // Y U NO WORK :(
+			}
+			_ => {
+				log::info!("Ignoring: {entry_display}");
+			}
+		};
 	}
+	log::info!("Done loading DLLs");
 }
 
-#[allow(dead_code)]
-fn load(dll_path: &Path) {
-	//TODO: Find a clean way to communicate between dlls and d3d9 stuff.
-	let dll_path = dll_path.as_os_str().to_str().unwrap();
-	let load_result = unsafe { LoadLibraryA(PCSTR::from_raw(dll_path.as_ptr())) };
+fn load_dll(dll_path: &Path) {
+	let load_result = unsafe { LoadLibraryW(&HSTRING::from(dll_path)) };
 	let handle = match load_result {
 		Err(err) => {
-			log::error!("Error while loading: {dll_path} -- LoadLibraryA() returns: {err}");
-			//FIXME: We must figure out why it fails.
-			//In the meantime, just panic!()
-			//return;
+			let dll_path = dll_path.display();
+			log::error!("Error while loading: {dll_path} -- LoadLibrary() returns: {err}");
+			//FIXME: We must figure out why it fails sometimes:
+			// - tried: LoadLibraryW instead of LoadLibraryA
+			// - tried: not callin this from DllMain -.-
+			// In the meantime, just panic!()
 			panic!("I'd rather crash now. Problematic DLL: {dll_path}; err: {err:?}");
 		}
 		Ok(handle) => {
@@ -48,6 +51,7 @@ fn load(dll_path: &Path) {
 	unsafe { crate::api::blur_api::BLUR_API.register_plugin_from_dll_handle(handle) };
 }
 
+/*
 #[deprecated]
 pub fn libloading_load_dll(dll_path: &Path) {
 	let lib = unsafe { libloading::Library::new(dll_path.as_os_str()) };
@@ -60,3 +64,4 @@ pub fn libloading_load_dll(dll_path: &Path) {
 	};
 	//unsafe { crate::api::blur_api::BLUR_API.register_plugin_from_libloading_library(lib) };
 }
+*/

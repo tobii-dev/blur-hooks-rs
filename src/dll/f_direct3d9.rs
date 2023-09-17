@@ -57,6 +57,7 @@ unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
 	//let r = fn_EndScene(this);
 	//log::trace!("HOOK_EndScene!");
 	//r
+
 	fn_EndScene(this)
 }
 
@@ -112,8 +113,11 @@ unsafe extern "system" fn HOOK_Reset(
 
 impl MyD3D9 {
 	pub fn new(f: *mut IDirect3D9) -> Self {
-		crate::loader::dll_loader::load_dlls(); // FIXME: Are we sure that MyD3D9::new() only gets called once?
-
+		{
+			use std::sync::Once;
+			static START: Once = Once::new();
+			START.call_once(crate::loader::dll_loader::load_dlls);
+		}
 		let f = unsafe { IDirect3D9::from_raw(f as _) };
 		let r = MyD3D9 { f };
 		log::info!("MyD3D9::new() -> {r:#?}");
