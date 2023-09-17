@@ -22,8 +22,6 @@ use windows::core::implement;
 use windows::core::Interface;
 use windows::core::HRESULT;
 
-use log::{info, trace};
-
 use crate::dll::fps::limit_fps;
 
 #[derive(Debug)]
@@ -57,7 +55,7 @@ static mut FN_ORG_RESET: Option<FnReset> = None;
 unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
 	let fn_EndScene = FN_ORG_ENDSCENE.unwrap();
 	//let r = fn_EndScene(this);
-	//trace!("HOOK_EndScene!");
+	//log::trace!("HOOK_EndScene!");
 	//r
 	fn_EndScene(this)
 }
@@ -97,7 +95,7 @@ unsafe extern "system" fn HOOK_Present(
 	if fps > 0.0 {
 		limit_fps(fps);
 	}
-	//trace!("HOOK_Present!");
+	//log::trace!("HOOK_Present!");
 	r
 }
 
@@ -106,12 +104,12 @@ unsafe extern "system" fn HOOK_Reset(
 	this: IDirect3DDevice9,
 	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 ) -> HRESULT {
-	trace!("HOOK_Reset_A!");
+	//log::trace!("HOOK_Reset_A!");
 	crate::gui::console::reset();
-	trace!("HOOK_Reset_B!");
+	//log::trace!("HOOK_Reset_B!");
 	let fn_Reset = FN_ORG_RESET.unwrap();
 	let r = fn_Reset(this, ppresentationparameters);
-	trace!("HOOK_Reset_C!");
+	//log::trace!("HOOK_Reset_C!");
 	r
 }
 
@@ -119,7 +117,7 @@ impl MyD3D9 {
 	pub fn new(f: *mut IDirect3D9) -> Self {
 		let f = unsafe { IDirect3D9::from_raw(f as _) };
 		let r = MyD3D9 { f };
-		trace!("MyD3D9::new() -> {r:#?}");
+		log::trace!("MyD3D9::new() -> {r:#?}");
 		r
 	}
 }
@@ -129,16 +127,16 @@ impl IDirect3D9_Impl for MyD3D9 {
 		&self,
 		pinitializefunction: *mut core::ffi::c_void,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::RegisterSoftwareDevice_pre");
+		log::trace!("MyD3D9::RegisterSoftwareDevice_pre");
 		let r = unsafe { self.f.RegisterSoftwareDevice(pinitializefunction) };
-		info!("MyD3D9::RegisterSoftwareDevice");
+		log::trace!("MyD3D9::RegisterSoftwareDevice");
 		r
 	}
 
 	fn GetAdapterCount(&self) -> u32 {
-		info!("MyD3D9::GetAdapterCount_pre");
+		log::trace!("MyD3D9::GetAdapterCount_pre");
 		let r = unsafe { self.f.GetAdapterCount() };
-		info!("MyD3D9::GetAdapterCount");
+		log::trace!("MyD3D9::GetAdapterCount");
 		r
 	}
 
@@ -148,16 +146,16 @@ impl IDirect3D9_Impl for MyD3D9 {
 		flags: u32,
 		pidentifier: *mut D3DADAPTER_IDENTIFIER9,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::GetAdapterIdentifier_pre");
+		log::trace!("MyD3D9::GetAdapterIdentifier_pre");
 		let r = unsafe { self.f.GetAdapterIdentifier(adapter, flags, pidentifier) };
-		info!("MyD3D9::GetAdapterIdentifier");
+		log::trace!("MyD3D9::GetAdapterIdentifier");
 		r
 	}
 
 	fn GetAdapterModeCount(&self, adapter: u32, format: D3DFORMAT) -> u32 {
-		info!("MyD3D9::GetAdapterModeCount_pre");
+		log::trace!("MyD3D9::GetAdapterModeCount_pre");
 		let r = unsafe { self.f.GetAdapterModeCount(adapter, format) };
-		info!("MyD3D9::GetAdapterModeCount");
+		log::trace!("MyD3D9::GetAdapterModeCount");
 		r
 	}
 
@@ -168,9 +166,9 @@ impl IDirect3D9_Impl for MyD3D9 {
 		mode: u32,
 		pmode: *mut D3DDISPLAYMODE,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::EnumAdapterModes_pre");
+		log::trace!("MyD3D9::EnumAdapterModes_pre");
 		let r = unsafe { self.f.EnumAdapterModes(adapter, format, mode, pmode) };
-		info!("MyD3D9::EnumAdapterModes");
+		log::trace!("MyD3D9::EnumAdapterModes");
 		r
 	}
 
@@ -179,9 +177,9 @@ impl IDirect3D9_Impl for MyD3D9 {
 		adapter: u32,
 		pmode: *mut D3DDISPLAYMODE,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::GetAdapterDisplayMode_pre");
+		log::trace!("MyD3D9::GetAdapterDisplayMode_pre");
 		let r = unsafe { self.f.GetAdapterDisplayMode(adapter, pmode) };
-		info!("MyD3D9::GetAdapterDisplayMode");
+		log::trace!("MyD3D9::GetAdapterDisplayMode");
 		r
 	}
 
@@ -193,12 +191,12 @@ impl IDirect3D9_Impl for MyD3D9 {
 		backbufferformat: D3DFORMAT,
 		bwindowed: windows::Win32::Foundation::BOOL,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::CheckDeviceType_pre");
+		log::trace!("MyD3D9::CheckDeviceType_pre");
 		let r = unsafe {
 			self.f
 				.CheckDeviceType(adapter, devtype, adapterformat, backbufferformat, bwindowed)
 		};
-		info!("MyD3D9::CheckDeviceType");
+		log::trace!("MyD3D9::CheckDeviceType");
 		r
 	}
 
@@ -211,7 +209,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 		rtype: D3DRESOURCETYPE,
 		checkformat: D3DFORMAT,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::CheckDeviceFormat_pre");
+		log::trace!("MyD3D9::CheckDeviceFormat_pre");
 		let r = unsafe {
 			self.f.CheckDeviceFormat(
 				adapter,
@@ -222,7 +220,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 				checkformat,
 			)
 		};
-		info!("MyD3D9::CheckDeviceFormat");
+		log::trace!("MyD3D9::CheckDeviceFormat");
 		r
 	}
 
@@ -235,7 +233,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 		multisampletype: D3DMULTISAMPLE_TYPE,
 		pqualitylevels: *mut u32,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::CheckDeviceMultiSampleType_pre");
+		log::trace!("MyD3D9::CheckDeviceMultiSampleType_pre");
 		let r = unsafe {
 			self.f.CheckDeviceMultiSampleType(
 				adapter,
@@ -246,7 +244,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 				pqualitylevels,
 			)
 		};
-		info!("MyD3D9::CheckDeviceMultiSampleType");
+		log::trace!("MyD3D9::CheckDeviceMultiSampleType");
 		r
 	}
 
@@ -258,7 +256,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 		rendertargetformat: D3DFORMAT,
 		depthstencilformat: D3DFORMAT,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::CheckDepthStencilMatch_pre");
+		log::trace!("MyD3D9::CheckDepthStencilMatch_pre");
 		let r = unsafe {
 			self.f.CheckDepthStencilMatch(
 				adapter,
@@ -268,7 +266,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 				depthstencilformat,
 			)
 		};
-		info!("MyD3D9::CheckDepthStencilMatch");
+		log::trace!("MyD3D9::CheckDepthStencilMatch");
 		r
 	}
 
@@ -279,12 +277,12 @@ impl IDirect3D9_Impl for MyD3D9 {
 		sourceformat: D3DFORMAT,
 		targetformat: D3DFORMAT,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::CheckDeviceFormatConversion_pre");
+		log::trace!("MyD3D9::CheckDeviceFormatConversion_pre");
 		let r = unsafe {
 			self.f
 				.CheckDeviceFormatConversion(adapter, devicetype, sourceformat, targetformat)
 		};
-		info!("MyD3D9::CheckDeviceFormatConversion");
+		log::trace!("MyD3D9::CheckDeviceFormatConversion");
 		r
 	}
 
@@ -294,16 +292,16 @@ impl IDirect3D9_Impl for MyD3D9 {
 		devicetype: D3DDEVTYPE,
 		pcaps: *mut D3DCAPS9,
 	) -> windows::core::Result<()> {
-		info!("MyD3D9::GetDeviceCaps_pre");
+		log::trace!("MyD3D9::GetDeviceCaps_pre");
 		let r = unsafe { self.f.GetDeviceCaps(adapter, devicetype, pcaps) };
-		info!("MyD3D9::GetDeviceCaps");
+		log::trace!("MyD3D9::GetDeviceCaps");
 		r
 	}
 
 	fn GetAdapterMonitor(&self, adapter: u32) -> windows::Win32::Graphics::Gdi::HMONITOR {
-		info!("MyD3D9::GetAdapterMonitor_pre");
+		log::trace!("MyD3D9::GetAdapterMonitor_pre");
 		let r = unsafe { self.f.GetAdapterMonitor(adapter) };
-		info!("MyD3D9::GetAdapterMonitor");
+		log::trace!("MyD3D9::GetAdapterMonitor");
 		r
 	}
 

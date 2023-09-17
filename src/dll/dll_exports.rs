@@ -1,6 +1,5 @@
 use windows::core::{Interface, HRESULT};
 
-use log::info;
 use windows::Win32::Graphics::Direct3D9::{IDirect3D9, IDirect3D9Ex};
 use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
 
@@ -8,14 +7,14 @@ use crate::dll::f_direct3d9::MyD3D9;
 
 #[no_mangle]
 pub unsafe extern "stdcall" fn f_D3DPERF_SetOptions(dw_options: u32) {
-	info!("f_D3DPERF_SetOptions(dw_options: (DWORD) {dw_options:?})");
+	log::trace!("f_D3DPERF_SetOptions(dw_options: (DWORD) {dw_options:?})");
 	crate::dll::dll_imports::D3DPERF_SetOptions(dw_options)
 }
 
 #[no_mangle]
 pub unsafe extern "stdcall" fn f_Direct3DCreate9(sdk_version: u32) -> *mut IDirect3D9 {
 	let r = crate::dll::dll_imports::Direct3DCreate9(sdk_version);
-	info!("f_Direct3DCreate9(sdk_version: (UINT) {sdk_version:?}) -> *mut IDirect3D9 {r:?}");
+	log::trace!("f_Direct3DCreate9(sdk_version: (UINT) {sdk_version:?}) -> *mut IDirect3D9 {r:?}");
 	let m: IDirect3D9 = MyD3D9::new(r).into();
 	m.into_raw() as _
 }
@@ -26,7 +25,7 @@ pub unsafe extern "stdcall" fn f_Direct3DCreate9Ex(
 	pp: *mut *mut IDirect3D9Ex,
 ) -> HRESULT {
 	let r = crate::dll::dll_imports::Direct3DCreate9Ex(sdk_version, pp);
-	info!("f_Direct3DCreate9Ex(sdk_version: (UINT) {sdk_version:?}, pp: (*mut *mut IDirect3D9Ex) {pp:?}) -> HRESULT {r:?}");
+	log::trace!("f_Direct3DCreate9Ex(sdk_version: (UINT) {sdk_version:?}, pp: (*mut *mut IDirect3D9Ex) {pp:?}) -> HRESULT {r:?}");
 	r
 }
 

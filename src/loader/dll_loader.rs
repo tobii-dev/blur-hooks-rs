@@ -35,7 +35,10 @@ fn load(dll_path: &Path) {
 	let handle = match load_result {
 		Err(err) => {
 			log::error!("Error while loading: {dll_path} -- LoadLibraryA() returns: {err}");
-			return;
+			//FIXME: We must figure out why it fails.
+			//In the meantime, just panic!()
+			//return;
+			panic!("I'd rather crash now. Problematic DLL: {dll_path}; err: {err:?}");
 		}
 		Ok(handle) => {
 			//TODO: Store loaded plugins somewhere, if we are gonna use them later?
