@@ -1,5 +1,4 @@
 use blur_plugins_core::{BlurAPI, BlurEvent, BlurPlugin, FnInit};
-use libloading::Symbol;
 use windows::{
 	s,
 	Win32::{Foundation::HMODULE, System::LibraryLoader::GetProcAddress},
@@ -29,9 +28,10 @@ impl MyBlurAPI {
 		true
 	}
 
+	/*
 	#[deprecated]
 	pub fn register_plugin_from_libloading_library(&mut self, lib: libloading::Library) -> bool {
-		let uwu: Result<Symbol<FnInit>, _> = unsafe { lib.get(b"plugin_init") };
+		let uwu: Result<libloading::Symbol<FnInit>, _> = unsafe { lib.get(b"plugin_init") };
 		match uwu {
 			Ok(loader_uwu) => {
 				let plugin = loader_uwu(self);
@@ -44,6 +44,7 @@ impl MyBlurAPI {
 			}
 		}
 	}
+	*/
 
 	fn register_plugin(&mut self, plugin: Box<dyn BlurPlugin>) {
 		self.plugins.push(plugin);
