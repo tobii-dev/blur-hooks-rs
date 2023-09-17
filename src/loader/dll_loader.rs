@@ -8,7 +8,7 @@ pub fn load_dlls() {
 	log::info!("Loading dlls from: {_path_display}");
 	let entries = path_dlls
 		.read_dir()
-		.expect(std::format!("read_dir({_path_display}) failed...").as_str());
+		.unwrap_or_else(|_| panic!("read_dir({_path_display}) failed..."));
 	for entry in entries.filter_map(|e| e.ok()).map(|e| e.path()) {
 		if let Some(ext) = entry.extension() {
 			let ext = ext.to_str().unwrap();

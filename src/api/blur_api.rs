@@ -74,7 +74,7 @@ impl BlurAPI for MyBlurAPI {
 
 	fn notify(&self, event: &BlurEvent) {
 		for plugin in &self.plugins {
-			plugin.on_event(&event);
+			plugin.on_event(event);
 		}
 	}
 }

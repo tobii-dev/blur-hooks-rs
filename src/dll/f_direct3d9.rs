@@ -104,20 +104,19 @@ unsafe extern "system" fn HOOK_Reset(
 	this: IDirect3DDevice9,
 	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 ) -> HRESULT {
-	//log::trace!("HOOK_Reset_A!");
 	crate::gui::console::reset();
-	//log::trace!("HOOK_Reset_B!");
 	let fn_Reset = FN_ORG_RESET.unwrap();
-	let r = fn_Reset(this, ppresentationparameters);
-	//log::trace!("HOOK_Reset_C!");
-	r
+
+	fn_Reset(this, ppresentationparameters)
 }
 
 impl MyD3D9 {
 	pub fn new(f: *mut IDirect3D9) -> Self {
+		crate::loader::dll_loader::load_dlls(); // FIXME: Are we sure that MyD3D9::new() only gets called once?
+
 		let f = unsafe { IDirect3D9::from_raw(f as _) };
 		let r = MyD3D9 { f };
-		log::trace!("MyD3D9::new() -> {r:#?}");
+		log::info!("MyD3D9::new() -> {r:#?}");
 		r
 	}
 }
