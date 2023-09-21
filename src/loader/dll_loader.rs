@@ -21,7 +21,6 @@ pub fn load_dlls() {
 			"dll" | "asi" => {
 				log::info!("Loading: {entry_display}");
 				load_dll(&entry);
-				//libloading_load_dll(&entry); // Y U NO WORK :(
 			}
 			_ => {
 				log::info!("Ignoring: {entry_display}");
@@ -48,20 +47,5 @@ fn load_dll(dll_path: &Path) {
 			handle
 		}
 	};
-	unsafe { crate::api::blur_api::BLUR_API.register_plugin_from_dll_handle(handle) };
+	crate::api::blur_api::register_plugin_from_dll_handle(handle);
 }
-
-/*
-#[deprecated]
-pub fn libloading_load_dll(dll_path: &Path) {
-	let lib = unsafe { libloading::Library::new(dll_path.as_os_str()) };
-	let _lib = match lib {
-		Ok(lib) => lib,
-		Err(err) => {
-			log::error!(": {err}");
-			return;
-		}
-	};
-	//unsafe { crate::api::blur_api::BLUR_API.register_plugin_from_libloading_library(lib) };
-}
-*/

@@ -16,7 +16,7 @@ fn hello_ui(ctx: &egui::Context, state: &mut Vec<&str>) {
 		for line in state {
 			ui.label(*line);
 		}
-		let fps = unsafe { crate::api::blur_api::BLUR_API.fps };
+		let fps = crate::api::blur_api::get_fps();
 		ui.label(fps.to_string());
 	});
 }

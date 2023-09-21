@@ -16,7 +16,7 @@ use simplelog::*;
 
 pub fn init(module: HMODULE) {
 	unsafe {
-		AllocConsole();
+		AllocConsole().expect("No console?");
 	};
 	let cfg = ConfigBuilder::new()
 		.set_time_offset_to_local()
@@ -40,6 +40,12 @@ pub fn init(module: HMODULE) {
 	if r != minhook_sys::MH_OK {
 		log::error!("Unable to minhook_sys::MH_Initialize() (returned {r})");
 	}
+	/* {
+		use std::sync::Once;
+		static START: Once = Once::new();
+		START.call_once(crate::loader::dll_loader::load_dlls);
+	} */
+	crate::loader::dll_loader::load_dlls()
 }
 
 pub fn free(module: HMODULE) {
@@ -50,6 +56,6 @@ pub fn free(module: HMODULE) {
 		log::error!("Unable to minhook_sys::MH_Uninitialize() (returned {r})");
 	}
 	unsafe {
-		FreeConsole();
+		FreeConsole().expect("Failed to FreeConsole()");
 	};
 }

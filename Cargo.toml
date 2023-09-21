@@ -12,11 +12,11 @@ crate-type = ["cdylib"]
 [dependencies]
 blur-plugins-core = { git = "https://github.com/tobii-dev/blur-plugins-core" }
 egui = "0.22.0"
-egui-d3d9 = "0.3.4"
-#libloading = "0.8.0"
+# egui-d3d9 = "0.3.4"
+egui-d3d9 = { git = "https://github.com/tobii-dev/egui-d3d9" }
 log = { version = "0.4.20", features = ["release_max_level_info"] }
 log-panics = { version = "2.1.0", features = ["with-backtrace"] }
 minhook-sys = "0.1.1"
 simplelog = "0.12.1"
-windows = { version = "0.48.0", features = ["Win32_Graphics_Direct3D9", "Win32_Foundation", "implement", "Win32_System_Console", "Win32_System_SystemServices", "Win32_Graphics_Gdi", "Win32_Graphics_Direct3D", "Foundation_Numerics", "Win32_UI_WindowsAndMessaging", "Win32_System_LibraryLoader"] }
+windows = { version = "0.51.1", features = ["Win32_Graphics_Direct3D9", "Win32_Foundation", "implement", "Win32_System_Console", "Win32_System_SystemServices", "Win32_Graphics_Gdi", "Win32_Graphics_Direct3D", "Foundation_Numerics", "Win32_UI_WindowsAndMessaging", "Win32_System_LibraryLoader"] }
 windows-dll = "0.4.1"

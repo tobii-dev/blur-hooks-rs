@@ -92,9 +92,11 @@ unsafe extern "system" fn HOOK_Present(
 		pdirtyregion,
 	);
 
-	let fps = crate::api::blur_api::BLUR_API.fps;
-	if fps > 0.0 {
-		limit_fps(fps);
+	{
+		let fps = crate::api::blur_api::get_fps();
+		if fps > 0.0 {
+			limit_fps(fps);
+		}
 	}
 	//log::trace!("HOOK_Present!");
 	r
@@ -113,11 +115,6 @@ unsafe extern "system" fn HOOK_Reset(
 
 impl MyD3D9 {
 	pub fn new(f: *mut IDirect3D9) -> Self {
-		{
-			use std::sync::Once;
-			static START: Once = Once::new();
-			START.call_once(crate::loader::dll_loader::load_dlls);
-		}
 		let f = unsafe { IDirect3D9::from_raw(f as _) };
 		let r = MyD3D9 { f };
 		log::info!("MyD3D9::new() -> {r:#?}");

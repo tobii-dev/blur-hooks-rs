@@ -1,18 +1,16 @@
 use blur_plugins_core::{BlurAPI, BlurEvent, BlurPlugin, FnInit};
 use windows::{
-	s,
+	core::s,
 	Win32::{Foundation::HMODULE, System::LibraryLoader::GetProcAddress},
 };
 
-///FIXME: This should never ever ever ever ever EVER be pub
-///Better would be to create a function that gets a reference to this or something idk...
-pub static mut BLUR_API: MyBlurAPI = MyBlurAPI {
+static mut BLUR_API: MyBlurAPI = MyBlurAPI {
 	fps: 0.0,
 	plugins: vec![],
 };
 
-pub struct MyBlurAPI {
-	pub fps: f64,
+struct MyBlurAPI {
+	fps: f64,
 	plugins: Vec<Box<dyn BlurPlugin>>,
 }
 
@@ -27,24 +25,6 @@ impl MyBlurAPI {
 		self.register_plugin(plugin);
 		true
 	}
-
-	/*
-	#[deprecated]
-	pub fn register_plugin_from_libloading_library(&mut self, lib: libloading::Library) -> bool {
-		let uwu: Result<libloading::Symbol<FnInit>, _> = unsafe { lib.get(b"plugin_init") };
-		match uwu {
-			Ok(loader_uwu) => {
-				let plugin = loader_uwu(self);
-				self.register_plugin(plugin);
-				true
-			}
-			Err(err) => {
-				log::error!("{err}");
-				false
-			}
-		}
-	}
-	*/
 
 	fn register_plugin(&mut self, plugin: Box<dyn BlurPlugin>) {
 		self.plugins.push(plugin);
@@ -73,15 +53,36 @@ impl BlurAPI for MyBlurAPI {
 		todo!();
 	}
 
-	fn notify(&self, event: &BlurEvent) {
+	fn notify(&self, event: BlurEvent) {
+		// FIXME: this is ugly...
+		// maybe better just "get profile username" fn for BlurAPI
+		let event = if let BlurEvent::LoginStart { .. } = event {
+			BlurEvent::LoginStart {
+				username: crate::api::game::get_saved_profile_username(),
+			}
+		} else {
+			event
+		};
 		for plugin in &self.plugins {
-			plugin.on_event(event);
+			plugin.on_event(&event);
 		}
 	}
 }
 
 pub fn free_plugins() {
+	// SAFETY: lol no
 	unsafe {
 		BLUR_API.free_plugins();
 	};
+}
+
+pub fn get_fps() -> f64 {
+	// SAFETY: hhehehehe nope. Any plugin can read or write to the MyBlurAPI fps value at the same time.
+	unsafe { BLUR_API.get_fps() }
+}
+
+pub fn register_plugin_from_dll_handle(handle: HMODULE) -> bool {
+	// SAFETY: Some: Plugins are guaranteed to load sequentially, after d3d9 stuff is init, after BLUR_API is init.
+	// However, if the plugin does stuff it shouldn't in plugin_init(), IDK what happens...
+	unsafe { BLUR_API.register_plugin_from_dll_handle(handle) }
 }
