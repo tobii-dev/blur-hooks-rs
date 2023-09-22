@@ -12,6 +12,6 @@ pub fn get_saved_profile_username() -> String {
 	let ptr = ptr_base.wrapping_offset(OFFSET_PROFILE_USERNAME) as *const c_char;
 	let s = unsafe { CStr::from_ptr(ptr) };
 	s.to_str()
-		.expect("Could not read username as UTF-8 from profile.")
+		.expect("Could not read username as UTF-8 str from profile.")
 		.to_string()
 }

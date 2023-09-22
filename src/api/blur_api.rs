@@ -1,8 +1,10 @@
-use blur_plugins_core::{BlurAPI, BlurEvent, BlurPlugin, FnInit};
+use blur_plugins_core::{BlurAPI, BlurEvent, BlurNotification, BlurPlugin, FnPluginInit};
 use windows::{
 	core::s,
 	Win32::{Foundation::HMODULE, System::LibraryLoader::GetProcAddress},
 };
+
+use super::game::get_saved_profile_username;
 
 static mut BLUR_API: MyBlurAPI = MyBlurAPI {
 	fps: 0.0,
@@ -20,7 +22,7 @@ impl MyBlurAPI {
 		let Some(fn_plugin_init) = fn_plugin_init else {
 			return false;
 		};
-		let plugin_init: FnInit = unsafe { std::mem::transmute(fn_plugin_init) };
+		let plugin_init: FnPluginInit = unsafe { std::mem::transmute(fn_plugin_init) };
 		let plugin = plugin_init(self);
 		self.register_plugin(plugin);
 		true
@@ -53,15 +55,17 @@ impl BlurAPI for MyBlurAPI {
 		todo!();
 	}
 
-	fn notify(&self, event: BlurEvent) {
-		// FIXME: this is ugly...
-		// maybe better just "get profile username" fn for BlurAPI
-		let event = if let BlurEvent::LoginStart { .. } = event {
-			BlurEvent::LoginStart {
-				username: crate::api::game::get_saved_profile_username(),
-			}
-		} else {
-			event
+	fn notify(&self, notif: BlurNotification) {
+		let event = match notif {
+			BlurNotification::Nothing => BlurEvent::NoEvent,
+			BlurNotification::LoginStart => BlurEvent::LoginStart {
+				username: get_saved_profile_username(),
+			},
+			BlurNotification::LoginEnd { success } => BlurEvent::LoginEnd {
+				username: get_saved_profile_username(),
+				success,
+			},
+			BlurNotification::Screen { name } => BlurEvent::Screen { name },
 		};
 		for plugin in &self.plugins {
 			plugin.on_event(&event);
