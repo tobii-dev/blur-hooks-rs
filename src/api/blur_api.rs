@@ -22,6 +22,8 @@ impl MyBlurAPI {
 		let Some(fn_plugin_init) = fn_plugin_init else {
 			return false;
 		};
+		// SAFETY: If there is a DLL in amax/dlls/ that exports a plugin_init() function, I simply hope it looks like [`blur_plugins_core::FnPluginInit`] ...
+		// More safe would be to check some sort of <BlurPluginVersion> struct to see if this [`BlurAPI`] is compatible with this [`BlurPlugin`]
 		let plugin_init: FnPluginInit = unsafe { std::mem::transmute(fn_plugin_init) };
 		let plugin = plugin_init(self);
 		self.register_plugin(plugin);
@@ -81,12 +83,13 @@ pub fn free_plugins() {
 }
 
 pub fn get_fps() -> f64 {
-	// SAFETY: hhehehehe nope. Any plugin can read or write to the MyBlurAPI fps value at the same time.
+	// SAFETY: hhehehehe... No. Any plugin can read or write to the MyBlurAPI fps value at the same time, even across threads!
+	// FIXME: Mutex?
 	unsafe { BLUR_API.get_fps() }
 }
 
 pub fn register_plugin_from_dll_handle(handle: HMODULE) -> bool {
-	// SAFETY: Some: Plugins are guaranteed to load sequentially, after d3d9 stuff is init, after BLUR_API is init.
-	// However, if the plugin does stuff it shouldn't in plugin_init(), IDK what happens...
+	// SAFETY: <?>: Plugins are guaranteed to load sequentially, after d3d9 stuff is init, and after BLUR_API is init.
+	// However, if the plugin does stuff it shouldn't in plugin_init(), this is undefined...
 	unsafe { BLUR_API.register_plugin_from_dll_handle(handle) }
 }

@@ -69,6 +69,7 @@ unsafe extern "system" fn HOOK_Present(
 	hdestwindowoverride: HWND,
 	pdirtyregion: *const RGNDATA,
 ) -> HRESULT {
+	/* // TODO: impl display
 	{
 		use windows::Win32::Graphics::Direct3D9::D3DDEVICE_CREATION_PARAMETERS;
 		let pparameters = &mut D3DDEVICE_CREATION_PARAMETERS::default();
@@ -81,7 +82,7 @@ unsafe extern "system" fn HOOK_Present(
 				log::warn!("GetCreationParameters() returned {err}");
 			}
 		}
-	}
+	} */
 
 	let fn_Present = FN_ORG_PRESENT.unwrap();
 	let r = fn_Present(
@@ -107,7 +108,7 @@ unsafe extern "system" fn HOOK_Reset(
 	this: IDirect3DDevice9,
 	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 ) -> HRESULT {
-	crate::gui::console::reset();
+	// crate::gui::console::reset(); // TODO: impl display
 	let fn_Reset = FN_ORG_RESET.unwrap();
 
 	fn_Reset(this, ppresentationparameters)
@@ -340,7 +341,6 @@ impl IDirect3D9_Impl for MyD3D9 {
 
 fn set_hook_endscene(dev: &IDirect3DDevice9) {
 	let f = dev.vtable().EndScene;
-	//let fn_ptr: FnEndScene = unsafe { std::mem::transmute(f) };
 	let fn_ptr: *mut c_void = f as *mut _;
 	let fn_hook_ptr: *mut c_void = HOOK_EndScene as *mut _;
 	let fn_saved: *mut *mut c_void = &mut std::ptr::null_mut();
@@ -360,7 +360,6 @@ fn set_hook_endscene(dev: &IDirect3DDevice9) {
 
 fn set_hook_present(dev: &IDirect3DDevice9) {
 	let f = dev.vtable().Present;
-	//let fn_ptr: FnPresent = unsafe { std::mem::transmute(f) };
 	let fn_ptr: *mut c_void = f as *mut _;
 	let fn_hook_ptr: *mut c_void = HOOK_Present as *mut _;
 	let fn_saved: *mut *mut c_void = &mut std::ptr::null_mut();

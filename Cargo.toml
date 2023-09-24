@@ -1,19 +1,17 @@
 [package]
 name = "blur-rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 build = "build.rs"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "d3d9"
 crate-type = ["cdylib"]
 
 [dependencies]
 blur-plugins-core = { git = "https://github.com/tobii-dev/blur-plugins-core" }
-egui = "0.22.0"
-# egui-d3d9 = "0.3.4"
-egui-d3d9 = { git = "https://github.com/tobii-dev/egui-d3d9" }
+# egui = "0.22.0" # For now I'm not using the GUI
+# egui-d3d9 = { git = "https://github.com/tobii-dev/egui-d3d9" } # this for has windows 0.51.1 support
 log = { version = "0.4.20", features = ["release_max_level_info"] }
 log-panics = { version = "2.1.0", features = ["with-backtrace"] }
 minhook-sys = "0.1.1"
