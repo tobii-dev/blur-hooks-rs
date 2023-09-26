@@ -19,6 +19,7 @@ jobs:
       run: |
         rustup toolchain install nightly-x86_64-pc-windows-msvc
         rustup default nightly
+        rustup target add i686-pc-windows-msvc
 
     - name: Build debug [msvc]
       run: cargo +nightly build --verbose --target=i686-pc-windows-msvc
