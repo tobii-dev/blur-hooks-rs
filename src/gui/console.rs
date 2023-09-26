@@ -21,8 +21,23 @@ fn hello_ui(ctx: &egui::Context, state: &mut Vec<&str>) {
 	});
 }
 
+pub fn draw(dev: &IDirect3DDevice9) {
+	// TODO: impl display
+	use windows::Win32::Graphics::Direct3D9::D3DDEVICE_CREATION_PARAMETERS;
+	let pparameters = &mut D3DDEVICE_CREATION_PARAMETERS::default();
+	match unsafe { dev.GetCreationParameters(pparameters) } {
+		Ok(_) => {
+			let hwnd = pparameters.hFocusWindow;
+			_draw(&dev, hwnd);
+		}
+		Err(err) => {
+			log::warn!("GetCreationParameters() returned {err}");
+		}
+	}
+}
+
 /// Called right before the original IDirect3DDevice9::Present(...) is called.
-pub fn draw(dev: &IDirect3DDevice9, hwnd: HWND) {
+fn _draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 	static INIT: Once = Once::new();
 	INIT.call_once(move || {
 		log::trace!("Initializing EguiDx9<_> APP");
@@ -54,7 +69,7 @@ unsafe extern "stdcall" fn hk_wnd_proc(
 	wparam: WPARAM,
 	lparam: LPARAM,
 ) -> LRESULT {
-	//This is okay because APP gets set before hooking this WNDPROC
+	//SAFETY: This is okay because `APP` is set before this setting this WNDPROC hook
 	APP.as_mut().unwrap().wnd_proc(msg, wparam, lparam);
 	CallWindowProcW(FN_ORG_WNDPROC, hwnd, msg, wparam, lparam)
 }

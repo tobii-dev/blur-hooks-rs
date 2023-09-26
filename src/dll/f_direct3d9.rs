@@ -69,20 +69,8 @@ unsafe extern "system" fn HOOK_Present(
 	hdestwindowoverride: HWND,
 	pdirtyregion: *const RGNDATA,
 ) -> HRESULT {
-	/* // TODO: impl display
-	{
-		use windows::Win32::Graphics::Direct3D9::D3DDEVICE_CREATION_PARAMETERS;
-		let pparameters = &mut D3DDEVICE_CREATION_PARAMETERS::default();
-		match this.GetCreationParameters(pparameters) {
-			Ok(_) => {
-				let hwnd = pparameters.hFocusWindow;
-				crate::gui::console::draw(&this, hwnd);
-			}
-			Err(err) => {
-				log::warn!("GetCreationParameters() returned {err}");
-			}
-		}
-	} */
+	#[cfg(feature = "gui")]
+	crate::gui::console::draw(&this);
 
 	let fn_Present = FN_ORG_PRESENT.unwrap();
 	let r = fn_Present(
@@ -108,7 +96,9 @@ unsafe extern "system" fn HOOK_Reset(
 	this: IDirect3DDevice9,
 	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 ) -> HRESULT {
-	// crate::gui::console::reset(); // TODO: impl display
+	#[cfg(feature = "gui")]
+	crate::gui::console::reset();
+
 	let fn_Reset = FN_ORG_RESET.unwrap();
 
 	fn_Reset(this, ppresentationparameters)

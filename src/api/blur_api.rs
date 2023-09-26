@@ -16,6 +16,9 @@ struct MyBlurAPI {
 	plugins: Vec<Box<dyn BlurPlugin>>,
 }
 
+unsafe impl Send for MyBlurAPI {}
+unsafe impl Sync for MyBlurAPI {}
+
 impl MyBlurAPI {
 	pub fn register_plugin_from_dll_handle(&mut self, handle: HMODULE) -> bool {
 		let fn_plugin_init = unsafe { GetProcAddress(handle, s!("plugin_init")) };

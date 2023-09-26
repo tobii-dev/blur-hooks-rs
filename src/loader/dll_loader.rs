@@ -6,9 +6,10 @@ pub fn load_dlls() {
 	let path_dlls = Path::new(".").join("amax").join("dlls");
 	let path_display = path_dlls.display();
 	log::info!("Loading DLLs from: {path_display}");
-	let entries = path_dlls
-		.read_dir()
-		.unwrap_or_else(|_| panic!("Could't access [{path_display}] <Path::read_dir() failed> - Does the directory exist?"));
+	let entries =
+		path_dlls.read_dir().unwrap_or_else(|_| {
+			panic!("Could't access [{path_display}] <Path::read_dir() failed> - Does the directory exist?")
+		});
 	for entry in entries.filter_map(|e| e.ok()).map(|e| e.path()) {
 		let Some(ext) = entry.extension() else {
 			continue;
@@ -38,9 +39,7 @@ fn load_dll(dll_path: &Path) {
 			log::error!("Error while loading: [{dll_path}]. LoadLibrary() returned: {err:?}");
 			panic!("I'd rather panic!() now. Problematic DLL: [{dll_path}]. Error: {err:?}");
 		}
-		Ok(handle) => {
-			handle
-		}
+		Ok(handle) => handle,
 	};
 	crate::api::blur_api::register_plugin_from_dll_handle(handle);
 }

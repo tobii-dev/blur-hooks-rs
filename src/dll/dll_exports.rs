@@ -29,7 +29,6 @@ pub unsafe extern "stdcall" fn f_Direct3DCreate9Ex(
 	r
 }
 
-/// Considering moving this to lib.rs?
 #[no_mangle]
 extern "system" fn DllMain(
 	dll_module: windows::Win32::Foundation::HMODULE,
@@ -37,8 +36,8 @@ extern "system" fn DllMain(
 	_reserved: *mut std::ffi::c_void,
 ) -> i32 {
 	match call_reason {
-		DLL_PROCESS_ATTACH => crate::init(dll_module),
-		DLL_PROCESS_DETACH => crate::free(dll_module),
+		DLL_PROCESS_ATTACH => super::core::init(dll_module),
+		DLL_PROCESS_DETACH => super::core::free(dll_module),
 		_ => (),
 	}
 	true.into()
