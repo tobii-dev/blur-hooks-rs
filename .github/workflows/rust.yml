@@ -16,6 +16,9 @@ jobs:
     steps:
     - name: Checkout sources
       uses: actions/checkout@v4
+      
+    - name: Install nightly
+      run: rustup toolchain install nightly-x86_64-pc-windows-msvc
 
     - name: Build debug [msvc]
       run: cargo +nightly build --verbose --target=i686-pc-windows-msvc
