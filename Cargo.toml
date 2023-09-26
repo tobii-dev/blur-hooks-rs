@@ -1,6 +1,6 @@
 [package]
 name = "blur-rs"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 build = "build.rs"
 
@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 
 [features]
 gui = ["dep:egui", "dep:egui-d3d9"]
+console = ["windows/Win32_System_Console"]
 
 
 [dependencies]
@@ -23,7 +24,7 @@ simplelog = "0.12.1"
 
 minhook-sys = "0.1.1"
 
-windows = { version = "0.51.1", features = ["Win32_Graphics_Direct3D9", "Win32_Foundation", "implement", "Win32_System_Console", "Win32_System_SystemServices", "Win32_Graphics_Gdi", "Win32_Graphics_Direct3D", "Foundation_Numerics", "Win32_UI_WindowsAndMessaging", "Win32_System_LibraryLoader"] } # Hi from column 300
+windows = { version = "0.51.1", features = ["Win32_Graphics_Direct3D9", "Win32_Foundation", "implement", "Win32_System_SystemServices", "Win32_Graphics_Gdi", "Win32_Graphics_Direct3D", "Foundation_Numerics", "Win32_UI_WindowsAndMessaging", "Win32_System_LibraryLoader"] } # Hi from column 300
 
 windows-dll = "0.4.1"
 

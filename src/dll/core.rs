@@ -2,10 +2,8 @@ use simplelog::Config;
 use windows::Win32::Foundation::HMODULE;
 
 pub(in crate::dll) fn init(module: HMODULE) {
-	unsafe {
-		use windows::Win32::System::Console::AllocConsole;
-		AllocConsole().expect("No console?");
-	};
+	#[cfg(feature = "console")]
+	unsafe { windows::Win32::System::Console::AllocConsole().unwrap(); };
 
 	let cfg = simplelog::ConfigBuilder::new()
 		.set_time_offset_to_local()
@@ -48,8 +46,6 @@ pub(in crate::dll) fn free(module: HMODULE) {
 		log::error!("Unable to minhook_sys::MH_Uninitialize() (returned {r})");
 	}
 
-	unsafe {
-		use windows::Win32::System::Console::FreeConsole;
-		FreeConsole().expect("Failed to FreeConsole()");
-	};
+	#[cfg(feature = "console")]
+	unsafe { windows::Win32::System::Console::FreeConsole().unwrap(); };
 }
