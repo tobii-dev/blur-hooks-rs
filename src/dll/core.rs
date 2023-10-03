@@ -3,7 +3,9 @@ use windows::Win32::Foundation::HMODULE;
 
 pub(in crate::dll) fn init(module: HMODULE) {
 	#[cfg(feature = "console")]
-	unsafe { windows::Win32::System::Console::AllocConsole().unwrap(); };
+	unsafe {
+		windows::Win32::System::Console::AllocConsole().unwrap();
+	};
 
 	let cfg = simplelog::ConfigBuilder::new()
 		.set_time_offset_to_local()
@@ -47,5 +49,8 @@ pub(in crate::dll) fn free(module: HMODULE) {
 	}
 
 	#[cfg(feature = "console")]
-	unsafe { windows::Win32::System::Console::FreeConsole().unwrap(); };
+	unsafe {
+		windows::Win32::System::Console::FreeConsole().unwrap();
+	};
+	log::logger().flush();
 }

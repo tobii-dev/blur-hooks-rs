@@ -72,6 +72,7 @@ impl BlurAPI for MyBlurAPI {
 			},
 			BlurNotification::Screen { name } => BlurEvent::Screen { name },
 		};
+		log::debug!("Sending event: {event:?}");
 		for plugin in &self.plugins {
 			plugin.on_event(&event);
 		}

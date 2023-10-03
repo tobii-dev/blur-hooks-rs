@@ -1,7 +1,9 @@
 use windows::core::{Interface, HRESULT};
 
 use windows::Win32::Graphics::Direct3D9::{IDirect3D9, IDirect3D9Ex};
-use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
+use windows::Win32::System::SystemServices::{
+	DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH, DLL_THREAD_ATTACH, DLL_THREAD_DETACH,
+};
 
 use crate::dll::f_direct3d9::MyD3D9;
 
@@ -38,7 +40,9 @@ extern "system" fn DllMain(
 	match call_reason {
 		DLL_PROCESS_ATTACH => super::core::init(dll_module),
 		DLL_PROCESS_DETACH => super::core::free(dll_module),
-		_ => (),
-	}
+		DLL_THREAD_ATTACH => {}
+		DLL_THREAD_DETACH => {}
+		_ => {}
+	};
 	true.into()
 }
