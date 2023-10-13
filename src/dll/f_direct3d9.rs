@@ -1,6 +1,8 @@
 #![allow(non_snake_case, non_camel_case_types)]
 use std::ffi::c_void;
 
+use windows::Win32::Foundation::HANDLE;
+use windows::Win32::Graphics::Direct3D9::D3DPOOL;
 use windows::Win32::Graphics::Direct3D9::IDirect3D9;
 use windows::Win32::Graphics::Direct3D9::IDirect3D9_Impl;
 use windows::Win32::Graphics::Direct3D9::IDirect3DDevice9;
@@ -13,6 +15,7 @@ use windows::Win32::Graphics::Direct3D9::D3DMULTISAMPLE_TYPE;
 use windows::Win32::Graphics::Direct3D9::D3DPRESENT_PARAMETERS;
 use windows::Win32::Graphics::Direct3D9::D3DRESOURCETYPE;
 
+use windows::Win32::Graphics::Direct3D9::IDirect3DTexture9;
 use windows::Win32::Graphics::Gdi::RGNDATA;
 
 use windows::Win32::Foundation::HWND;
@@ -32,6 +35,19 @@ pub struct MyD3D9 {
 
 //TODO: because these methods "really" actually belong to IDirect3DDevice9;
 //they should be defined in crate::dll::f_direct3d9device
+//
+type FnCreateTexture = unsafe extern "system" fn(
+	this: IDirect3DDevice9,
+	//this: *mut ::core::ffi::c_void,
+	width: u32,
+	height: u32,
+	levels: u32,
+	usage: u32,
+	format: D3DFORMAT,
+	pool: D3DPOOL,
+	pptexture: *mut Option<IDirect3DTexture9>,
+	psharedhandle: *mut HANDLE,
+) -> HRESULT;
 
 type FnEndScene = unsafe extern "system" fn(this: IDirect3DDevice9) -> HRESULT;
 type FnPresent = unsafe extern "system" fn(
@@ -47,9 +63,28 @@ type FnReset = unsafe extern "system" fn(
 	ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 ) -> HRESULT;
 
+static mut FN_ORG_CREATETEXTURE: Option<FnCreateTexture> = None;
 static mut FN_ORG_ENDSCENE: Option<FnEndScene> = None;
 static mut FN_ORG_PRESENT: Option<FnPresent> = None;
 static mut FN_ORG_RESET: Option<FnReset> = None;
+
+unsafe extern "system" fn HOOK_CreateTexture(
+	this: IDirect3DDevice9,
+	//this: *mut ::core::ffi::c_void,
+	width: u32,
+	height: u32,
+	levels: u32,
+	usage: u32,
+	format: D3DFORMAT,
+	pool: D3DPOOL,
+	pptexture: *mut Option<IDirect3DTexture9>,
+	psharedhandle: *mut HANDLE,
+) -> HRESULT {
+	let fn_CreateTexture = FN_ORG_CREATETEXTURE.unwrap();
+	let r = fn_CreateTexture(this, width, height, levels, usage, format, pool, pptexture, psharedhandle);
+	log::debug!("{r:?}");
+	r
+}
 
 //TODO: move me to f_direct3d9device
 unsafe extern "system" fn HOOK_EndScene(this: IDirect3DDevice9) -> HRESULT {
@@ -320,12 +355,32 @@ impl IDirect3D9_Impl for MyD3D9 {
 			.unwrap()
 			.to_owned()
 			.unwrap();
+		set_hook_createtexure(&dev);
 		set_hook_endscene(&dev);
 		set_hook_present(&dev);
 		set_hook_reset(&dev);
 
 		//unsafe { ppreturneddeviceinterface.write(Some(crate::dll::f_direct3d9device::MyDirect3DDevice9::new(dev).into())) };
 		r
+	}
+}
+
+fn set_hook_createtexure(dev: &IDirect3DDevice9) {
+	let f = dev.vtable().CreateTexture;
+	let fn_ptr: *mut c_void = f as *mut _;
+	let fn_hook_ptr: *mut c_void = HOOK_CreateTexture as *mut _;
+	let fn_saved: *mut *mut c_void = &mut std::ptr::null_mut();
+	let v = unsafe { minhook_sys::MH_CreateHook(fn_ptr, fn_hook_ptr, fn_saved) };
+	if v != minhook_sys::MH_OK {
+		let v = v.to_string();
+		panic!("MH_CreateHook(IDirect3DDevice9::CreateTexture) returned: {v}!");
+	}
+	unsafe {
+		FN_ORG_CREATETEXTURE = Some(std::mem::transmute(*fn_saved));
+	}
+	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
+	if v != minhook_sys::MH_OK {
+		panic!("MH_EnableHook(IDirect3DDevice9::CreateTexture) returned: {v}!");
 	}
 }
 

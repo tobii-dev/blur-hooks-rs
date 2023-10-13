@@ -28,6 +28,6 @@ windows = { version = "0.51.1", features = ["Win32_Graphics_Direct3D9", "Win32_F
 
 windows-dll = "0.4.1"
 
-# Optional dependencies:
-egui = { version = "0.22.0", optional = true }
-egui-d3d9 = { git = "https://github.com/tobii-dev/egui-d3d9", optional = true } # TODO: crates.io egui-d3d9
+# Optionals
+egui = { version = "0.23.0", optional = true }
+egui-d3d9 = { version = "0.3.6", optional = true }
