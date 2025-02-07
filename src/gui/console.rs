@@ -1,5 +1,6 @@
-use egui_d3d9::EguiDx9;
 use std::sync::Once;
+
+use egui_d3d9::EguiDx9;
 use windows::Win32::{
 	Foundation::{HWND, LPARAM, LRESULT, WPARAM},
 	Graphics::Direct3D9::IDirect3DDevice9,
@@ -51,13 +52,19 @@ fn _draw(dev: &IDirect3DDevice9, hwnd: HWND) {
 			));
 		};
 	});
-	let app = unsafe { APP.as_mut().unwrap() };
+	let app = unsafe {
+		#[allow(static_mut_refs)]
+		APP.as_mut().unwrap()
+	};
 	app.present(dev);
 }
 
 /// Reset APP resources that were destroyed during IDirect3DDevice9::Reset(...)
 pub fn reset() {
-	if let Some(app) = unsafe { APP.as_mut() } {
+	if let Some(app) = unsafe {
+		#[allow(static_mut_refs)]
+		APP.as_mut()
+	} {
 		app.pre_reset();
 	}
 }
@@ -70,6 +77,7 @@ unsafe extern "stdcall" fn hk_wnd_proc(
 	lparam: LPARAM,
 ) -> LRESULT {
 	//SAFETY: This is okay because `APP` is set before this setting this WNDPROC hook
+	#[allow(static_mut_refs)]
 	APP.as_mut().unwrap().wnd_proc(msg, wparam, lparam);
 	CallWindowProcW(FN_ORG_WNDPROC, hwnd, msg, wparam, lparam)
 }

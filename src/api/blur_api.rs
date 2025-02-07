@@ -1,18 +1,23 @@
+use std::sync::{LazyLock, Mutex};
+
 use blur_plugins_core::{BlurAPI, BlurEvent, BlurNotification, BlurPlugin, FnPluginInit};
 use windows::{
 	core::s,
 	Win32::{Foundation::HMODULE, System::LibraryLoader::GetProcAddress},
 };
 
-use super::game::get_saved_profile_username;
+use super::{fps::FpsLimiter, game::get_saved_profile_username};
 
-static mut BLUR_API: MyBlurAPI = MyBlurAPI {
-	fps: 0.0,
-	plugins: vec![],
-};
+static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
+	MyBlurAPI {
+		fps_limiter: FpsLimiter::new(),
+		plugins: vec![],
+	}
+	.into()
+});
 
 struct MyBlurAPI {
-	fps: f64,
+	fps_limiter: FpsLimiter,
 	plugins: Vec<Box<dyn BlurPlugin>>,
 }
 
@@ -48,12 +53,13 @@ impl MyBlurAPI {
 
 impl BlurAPI for MyBlurAPI {
 	fn set_fps(&mut self, fps: f64) -> bool {
-		self.fps = fps;
-		true
+		let fps = if 0.0 < fps { Some(fps) } else { None };
+		self.fps_limiter.set_fps(fps);
+		fps.is_some()
 	}
 
 	fn get_fps(&self) -> f64 {
-		self.fps
+		self.fps_limiter.get_fps()
 	}
 
 	fn register_event(&mut self, _event: &BlurEvent) {
@@ -79,21 +85,21 @@ impl BlurAPI for MyBlurAPI {
 	}
 }
 
+pub fn limit_fps() {
+	G_BLUR_API.lock().unwrap().fps_limiter.limit_fps();
+}
+
 pub fn free_plugins() {
-	// SAFETY: lol no
-	unsafe {
-		BLUR_API.free_plugins();
-	};
+	G_BLUR_API.lock().unwrap().free_plugins();
 }
 
 pub fn get_fps() -> f64 {
-	// SAFETY: hhehehehe... No. Any plugin can read or write to the MyBlurAPI fps value at the same time, even across threads!
-	// FIXME: Mutex?
-	unsafe { BLUR_API.get_fps() }
+	G_BLUR_API.lock().unwrap().get_fps()
 }
 
 pub fn register_plugin_from_dll_handle(handle: HMODULE) -> bool {
-	// SAFETY: <?>: Plugins are guaranteed to load sequentially, after d3d9 stuff is init, and after BLUR_API is init.
-	// However, if the plugin does stuff it shouldn't in plugin_init(), this is undefined...
-	unsafe { BLUR_API.register_plugin_from_dll_handle(handle) }
+	G_BLUR_API
+		.lock()
+		.unwrap()
+		.register_plugin_from_dll_handle(handle)
 }

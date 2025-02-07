@@ -22,8 +22,6 @@ use windows::core::implement;
 use windows::core::Interface;
 use windows::core::HRESULT;
 
-use crate::dll::fps::limit_fps;
-
 #[derive(Debug)]
 #[implement(IDirect3D9)]
 pub struct MyD3D9 {
@@ -81,12 +79,8 @@ unsafe extern "system" fn HOOK_Present(
 		pdirtyregion,
 	);
 
-	{
-		let fps = crate::api::blur_api::get_fps();
-		if fps > 0.0 {
-			limit_fps(fps);
-		}
-	}
+	crate::api::blur_api::limit_fps();
+
 	//log::trace!("HOOK_Present!");
 	r
 }
