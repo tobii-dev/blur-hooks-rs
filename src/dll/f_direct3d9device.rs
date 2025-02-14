@@ -8,8 +8,6 @@ use windows::Win32::Graphics::Direct3D9::*;
 
 use windows::core::implement;
 
-use log::info;
-
 #[derive(Debug)]
 #[implement(IDirect3DDevice9)]
 pub struct MyDirect3DDevice9 {
@@ -19,44 +17,44 @@ pub struct MyDirect3DDevice9 {
 impl MyDirect3DDevice9 {
 	pub fn new(f: IDirect3DDevice9) -> Self {
 		let r = MyDirect3DDevice9 { f };
-		info!("MyDirect3DDevice9::new() -> {r:#?}");
+		log::trace!("MyDirect3DDevice9::new() -> {r:#?}");
 		r
 	}
 }
 
 impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 	fn TestCooperativeLevel(&self) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::TestCooperativeLevel_pre");
+		// log::info!("MyDirect3DDevice9::TestCooperativeLevel_pre");
 		let r = unsafe { self.f.TestCooperativeLevel() };
-		info!("MyDirect3DDevice9::TestCooperativeLevel");
+		// log::info!("MyDirect3DDevice9::TestCooperativeLevel");
 		r
 	}
 
 	fn GetAvailableTextureMem(&self) -> u32 {
-		info!("MyDirect3DDevice9::GetAvailableTextureMem_pre");
+		// log::info!("MyDirect3DDevice9::GetAvailableTextureMem_pre");
 		let r = unsafe { self.f.GetAvailableTextureMem() };
-		info!("MyDirect3DDevice9::GetAvailableTextureMem");
+		// log::info!("MyDirect3DDevice9::GetAvailableTextureMem");
 		r
 	}
 
 	fn EvictManagedResources(&self) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::EvictManagedResources_pre");
+		// log::info!("MyDirect3DDevice9::EvictManagedResources_pre");
 		let r = unsafe { self.f.EvictManagedResources() };
-		info!("MyDirect3DDevice9::EvictManagedResources");
+		// log::info!("MyDirect3DDevice9::EvictManagedResources");
 		r
 	}
 
 	fn GetDirect3D(&self) -> windows::core::Result<IDirect3D9> {
-		info!("MyDirect3DDevice9::GetDirect3D_pre");
+		log::info!("MyDirect3DDevice9::GetDirect3D_pre");
 		let r = unsafe { self.f.GetDirect3D() };
-		info!("MyDirect3DDevice9::GetDirect3D");
+		log::info!("MyDirect3DDevice9::GetDirect3D");
 		r
 	}
 
 	fn GetDeviceCaps(&self, pcaps: *mut D3DCAPS9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetDeviceCaps_pre");
+		// log::info!("MyDirect3DDevice9::GetDeviceCaps_pre");
 		let r = unsafe { self.f.GetDeviceCaps(pcaps) };
-		info!("MyDirect3DDevice9::GetDeviceCaps");
+		// log::info!("MyDirect3DDevice9::GetDeviceCaps");
 		r
 	}
 
@@ -65,9 +63,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		iswapchain: u32,
 		pmode: *mut D3DDISPLAYMODE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetDisplayMode_pre");
+		// log::info!("MyDirect3DDevice9::GetDisplayMode_pre");
 		let r = unsafe { self.f.GetDisplayMode(iswapchain, pmode) };
-		info!("MyDirect3DDevice9::GetDisplayMode");
+		// log::info!("MyDirect3DDevice9::GetDisplayMode");
 		r
 	}
 
@@ -75,9 +73,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		pparameters: *mut D3DDEVICE_CREATION_PARAMETERS,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetCreationParameters_pre");
+		// log::info!("MyDirect3DDevice9::GetCreationParameters_pre");
 		let r = unsafe { self.f.GetCreationParameters(pparameters) };
-		info!("MyDirect3DDevice9::GetCreationParameters");
+		// log::info!("MyDirect3DDevice9::GetCreationParameters");
 		r
 	}
 
@@ -87,28 +85,28 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		yhotspot: u32,
 		pcursorbitmap: Option<&IDirect3DSurface9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetCursorProperties_pre");
+		// log::info!("MyDirect3DDevice9::SetCursorProperties_pre");
 		let r = unsafe {
 			self.f
 				.SetCursorProperties(xhotspot, yhotspot, pcursorbitmap)
 		};
-		info!("MyDirect3DDevice9::SetCursorProperties");
+		// log::info!("MyDirect3DDevice9::SetCursorProperties");
 		r
 	}
 
 	fn SetCursorPosition(&self, x: i32, y: i32, flags: u32) {
-		info!("MyDirect3DDevice9::SetCursorPosition_pre");
+		// log::info!("MyDirect3DDevice9::SetCursorPosition_pre");
 		unsafe { self.f.SetCursorPosition(x, y, flags) };
-		info!("MyDirect3DDevice9::SetCursorPosition");
+		// log::info!("MyDirect3DDevice9::SetCursorPosition");
 	}
 
 	fn ShowCursor(
 		&self,
 		bshow: windows::Win32::Foundation::BOOL,
 	) -> windows::Win32::Foundation::BOOL {
-		info!("MyDirect3DDevice9::ShowCursor_pre");
+		// log::info!("MyDirect3DDevice9::ShowCursor_pre");
 		let r = unsafe { self.f.ShowCursor(bshow) };
-		info!("MyDirect3DDevice9::ShowCursor");
+		// log::info!("MyDirect3DDevice9::ShowCursor");
 		r
 	}
 
@@ -117,26 +115,26 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 		pswapchain: *mut Option<IDirect3DSwapChain9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateAdditionalSwapChain_pre");
+		// log::info!("MyDirect3DDevice9::CreateAdditionalSwapChain_pre");
 		let r = unsafe {
 			self.f
 				.CreateAdditionalSwapChain(ppresentationparameters, pswapchain)
 		};
-		info!("MyDirect3DDevice9::CreateAdditionalSwapChain");
+		// log::info!("MyDirect3DDevice9::CreateAdditionalSwapChain");
 		r
 	}
 
 	fn GetSwapChain(&self, iswapchain: u32) -> windows::core::Result<IDirect3DSwapChain9> {
-		info!("MyDirect3DDevice9::GetSwapChain_pre");
+		// log::info!("MyDirect3DDevice9::GetSwapChain_pre");
 		let r = unsafe { self.f.GetSwapChain(iswapchain) };
-		info!("MyDirect3DDevice9::GetSwapChain");
+		// log::info!("MyDirect3DDevice9::GetSwapChain");
 		r
 	}
 
 	fn GetNumberOfSwapChains(&self) -> u32 {
-		info!("MyDirect3DDevice9::GetNumberOfSwapChains_pre");
+		// log::info!("MyDirect3DDevice9::GetNumberOfSwapChains_pre");
 		let r = unsafe { self.f.GetNumberOfSwapChains() };
-		info!("MyDirect3DDevice9::GetNumberOfSwapChains");
+		// log::info!("MyDirect3DDevice9::GetNumberOfSwapChains");
 		r
 	}
 
@@ -144,9 +142,16 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		ppresentationparameters: *mut D3DPRESENT_PARAMETERS,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::Reset_pre");
+		log::info!("MyDirect3DDevice9::Reset_pre");
 		let r = unsafe { self.f.Reset(ppresentationparameters) };
-		info!("MyDirect3DDevice9::Reset");
+		log::info!("MyDirect3DDevice9::Reset");
+
+		// dumb thing to help in debug
+		let mut cont = false;
+		let cont_ptr: &mut bool = &mut cont;
+		while !*cont_ptr {
+			*cont_ptr = false;
+		}
 		r
 	}
 
@@ -157,12 +162,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		hdestwindowoverride: windows::Win32::Foundation::HWND,
 		pdirtyregion: *const windows::Win32::Graphics::Gdi::RGNDATA,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::Present_pre");
+		// log::info!("MyDirect3DDevice9::Present_pre");
 		let r = unsafe {
 			self.f
 				.Present(psourcerect, pdestrect, hdestwindowoverride, pdirtyregion)
 		};
-		info!("MyDirect3DDevice9::Present");
+		// log::info!("MyDirect3DDevice9::Present");
 		r
 	}
 
@@ -172,12 +177,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ibackbuffer: u32,
 		backbuffer_type: D3DBACKBUFFER_TYPE,
 	) -> windows::core::Result<IDirect3DSurface9> {
-		info!("MyDirect3DDevice9::GetBackBuffer_pre");
+		// log::info!("MyDirect3DDevice9::GetBackBuffer_pre");
 		let r = unsafe {
 			self.f
 				.GetBackBuffer(iswapchain, ibackbuffer, backbuffer_type)
 		};
-		info!("MyDirect3DDevice9::GetBackBuffer");
+		// log::info!("MyDirect3DDevice9::GetBackBuffer");
 		r
 	}
 
@@ -186,9 +191,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		iswapchain: u32,
 		prasterstatus: *mut D3DRASTER_STATUS,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetRasterStatus_pre");
+		// log::info!("MyDirect3DDevice9::GetRasterStatus_pre");
 		let r = unsafe { self.f.GetRasterStatus(iswapchain, prasterstatus) };
-		info!("MyDirect3DDevice9::GetRasterStatus");
+		// log::info!("MyDirect3DDevice9::GetRasterStatus");
 		r
 	}
 
@@ -196,22 +201,22 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		benabledialogs: windows::Win32::Foundation::BOOL,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetDialogBoxMode_pre");
+		// log::info!("MyDirect3DDevice9::SetDialogBoxMode_pre");
 		let r = unsafe { self.f.SetDialogBoxMode(benabledialogs) };
-		info!("MyDirect3DDevice9::SetDialogBoxMode");
+		// log::info!("MyDirect3DDevice9::SetDialogBoxMode");
 		r
 	}
 
 	fn SetGammaRamp(&self, iswapchain: u32, flags: u32, pramp: *const D3DGAMMARAMP) {
-		info!("MyDirect3DDevice9::SetGammaRamp_pre");
+		// log::info!("MyDirect3DDevice9::SetGammaRamp_pre");
 		unsafe { self.f.SetGammaRamp(iswapchain, flags, pramp) };
-		info!("MyDirect3DDevice9::SetGammaRamp");
+		// log::info!("MyDirect3DDevice9::SetGammaRamp");
 	}
 
 	fn GetGammaRamp(&self, iswapchain: u32, pramp: *mut D3DGAMMARAMP) {
-		info!("MyDirect3DDevice9::GetGammaRamp_pre");
+		// log::info!("MyDirect3DDevice9::GetGammaRamp_pre");
 		unsafe { self.f.GetGammaRamp(iswapchain, pramp) };
-		info!("MyDirect3DDevice9::GetGammaRamp");
+		// log::info!("MyDirect3DDevice9::GetGammaRamp");
 	}
 
 	fn CreateTexture(
@@ -225,7 +230,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pptexture: *mut Option<IDirect3DTexture9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateTexture_pre");
+		// log::info!("MyDirect3DDevice9::CreateTexture_pre");
 		let r = unsafe {
 			self.f.CreateTexture(
 				width,
@@ -238,7 +243,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				psharedhandle,
 			)
 		};
-		info!("MyDirect3DDevice9::CreateTexture");
+		// log::info!("MyDirect3DDevice9::CreateTexture");
 		r
 	}
 
@@ -254,7 +259,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppvolumetexture: *mut Option<IDirect3DVolumeTexture9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateVolumeTexture_pre");
+		// log::info!("MyDirect3DDevice9::CreateVolumeTexture_pre");
 		let r = unsafe {
 			self.f.CreateVolumeTexture(
 				width,
@@ -268,7 +273,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				psharedhandle,
 			)
 		};
-		info!("MyDirect3DDevice9::CreateVolumeTexture");
+		// log::info!("MyDirect3DDevice9::CreateVolumeTexture");
 		r
 	}
 
@@ -282,7 +287,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppcubetexture: *mut Option<IDirect3DCubeTexture9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateCubeTexture_pre");
+		// log::info!("MyDirect3DDevice9::CreateCubeTexture_pre");
 		let r = unsafe {
 			self.f.CreateCubeTexture(
 				edgelength,
@@ -294,7 +299,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				psharedhandle,
 			)
 		};
-		info!("MyDirect3DDevice9::CreateCubeTexture");
+		// log::info!("MyDirect3DDevice9::CreateCubeTexture");
 		r
 	}
 
@@ -307,12 +312,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppvertexbuffer: *mut Option<IDirect3DVertexBuffer9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateVertexBuffer_pre");
+		// log::info!("MyDirect3DDevice9::CreateVertexBuffer_pre");
 		let r = unsafe {
 			self.f
 				.CreateVertexBuffer(length, usage, fvf, pool, ppvertexbuffer, psharedhandle)
 		};
-		info!("MyDirect3DDevice9::CreateVertexBuffer");
+		// log::info!("MyDirect3DDevice9::CreateVertexBuffer");
 		r
 	}
 
@@ -325,12 +330,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppindexbuffer: *mut Option<IDirect3DIndexBuffer9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateIndexBuffer_pre");
+		// log::info!("MyDirect3DDevice9::CreateIndexBuffer_pre");
 		let r = unsafe {
 			self.f
 				.CreateIndexBuffer(length, usage, format, pool, ppindexbuffer, psharedhandle)
 		};
-		info!("MyDirect3DDevice9::CreateIndexBuffer");
+		// log::info!("MyDirect3DDevice9::CreateIndexBuffer");
 		r
 	}
 
@@ -345,7 +350,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppsurface: *mut Option<IDirect3DSurface9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateRenderTarget_pre");
+		// log::info!("MyDirect3DDevice9::CreateRenderTarget_pre");
 		let r = unsafe {
 			self.f.CreateRenderTarget(
 				width,
@@ -358,7 +363,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				psharedhandle,
 			)
 		};
-		info!("MyDirect3DDevice9::CreateRenderTarget");
+		// log::info!("MyDirect3DDevice9::CreateRenderTarget");
 		r
 	}
 
@@ -373,7 +378,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppsurface: *mut Option<IDirect3DSurface9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateDepthStencilSurface_pre");
+		// log::info!("MyDirect3DDevice9::CreateDepthStencilSurface_pre");
 		let r = unsafe {
 			self.f.CreateDepthStencilSurface(
 				width,
@@ -386,7 +391,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				psharedhandle,
 			)
 		};
-		info!("MyDirect3DDevice9::CreateDepthStencilSurface");
+		// log::info!("MyDirect3DDevice9::CreateDepthStencilSurface");
 		r
 	}
 
@@ -397,12 +402,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pdestinationsurface: Option<&IDirect3DSurface9>,
 		pdestpoint: *const windows::Win32::Foundation::POINT,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::UpdateSurface_pre");
+		// log::info!("MyDirect3DDevice9::UpdateSurface_pre");
 		let r = unsafe {
 			self.f
 				.UpdateSurface(psourcesurface, psourcerect, pdestinationsurface, pdestpoint)
 		};
-		info!("MyDirect3DDevice9::UpdateSurface");
+		// log::info!("MyDirect3DDevice9::UpdateSurface");
 		r
 	}
 
@@ -411,9 +416,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		psourcetexture: Option<&IDirect3DBaseTexture9>,
 		pdestinationtexture: Option<&IDirect3DBaseTexture9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::UpdateTexture_pre");
+		// log::info!("MyDirect3DDevice9::UpdateTexture_pre");
 		let r = unsafe { self.f.UpdateTexture(psourcetexture, pdestinationtexture) };
-		info!("MyDirect3DDevice9::UpdateTexture");
+		// log::info!("MyDirect3DDevice9::UpdateTexture");
 		r
 	}
 
@@ -422,9 +427,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		prendertarget: Option<&IDirect3DSurface9>,
 		pdestsurface: Option<&IDirect3DSurface9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetRenderTargetData_pre");
+		// log::info!("MyDirect3DDevice9::GetRenderTargetData_pre");
 		let r = unsafe { self.f.GetRenderTargetData(prendertarget, pdestsurface) };
-		info!("MyDirect3DDevice9::GetRenderTargetData");
+		// log::info!("MyDirect3DDevice9::GetRenderTargetData");
 		r
 	}
 
@@ -433,9 +438,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		iswapchain: u32,
 		pdestsurface: Option<&IDirect3DSurface9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetFrontBufferData_pre");
+		// log::info!("MyDirect3DDevice9::GetFrontBufferData_pre");
 		let r = unsafe { self.f.GetFrontBufferData(iswapchain, pdestsurface) };
-		info!("MyDirect3DDevice9::GetFrontBufferData");
+		// log::info!("MyDirect3DDevice9::GetFrontBufferData");
 		r
 	}
 
@@ -447,12 +452,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pdestrect: *const windows::Win32::Foundation::RECT,
 		filter: D3DTEXTUREFILTERTYPE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::StretchRect_pre");
+		// log::info!("MyDirect3DDevice9::StretchRect_pre");
 		let r = unsafe {
 			self.f
 				.StretchRect(psourcesurface, psourcerect, pdestsurface, pdestrect, filter)
 		};
-		info!("MyDirect3DDevice9::StretchRect");
+		// log::info!("MyDirect3DDevice9::StretchRect");
 		r
 	}
 
@@ -462,9 +467,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		prect: *const windows::Win32::Foundation::RECT,
 		color: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::ColorFill_pre");
+		// log::info!("MyDirect3DDevice9::ColorFill_pre");
 		let r = unsafe { self.f.ColorFill(psurface, prect, color) };
-		info!("MyDirect3DDevice9::ColorFill");
+		// log::info!("MyDirect3DDevice9::ColorFill");
 		r
 	}
 
@@ -477,7 +482,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		ppsurface: *mut Option<IDirect3DSurface9>,
 		psharedhandle: *mut windows::Win32::Foundation::HANDLE,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::CreateOffscreenPlainSurface_pre");
+		// log::info!("MyDirect3DDevice9::CreateOffscreenPlainSurface_pre");
 		let r = unsafe {
 			self.f.CreateOffscreenPlainSurface(
 				width,
@@ -488,7 +493,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				psharedhandle,
 			)
 		};
-		info!("MyDirect3DDevice9::CreateOffscreenPlainSurface");
+		// log::info!("MyDirect3DDevice9::CreateOffscreenPlainSurface");
 		r
 	}
 
@@ -497,16 +502,16 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		rendertargetindex: u32,
 		prendertarget: Option<&IDirect3DSurface9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetRenderTarget_pre");
+		// log::info!("MyDirect3DDevice9::SetRenderTarget_pre");
 		let r = unsafe { self.f.SetRenderTarget(rendertargetindex, prendertarget) };
-		info!("MyDirect3DDevice9::SetRenderTarget");
+		// log::info!("MyDirect3DDevice9::SetRenderTarget");
 		r
 	}
 
 	fn GetRenderTarget(&self, rendertargetindex: u32) -> windows::core::Result<IDirect3DSurface9> {
-		info!("MyDirect3DDevice9::GetRenderTarget_pre");
+		// log::info!("MyDirect3DDevice9::GetRenderTarget_pre");
 		let r = unsafe { self.f.GetRenderTarget(rendertargetindex) };
-		info!("MyDirect3DDevice9::GetRenderTarget");
+		// log::info!("MyDirect3DDevice9::GetRenderTarget");
 		r
 	}
 
@@ -514,30 +519,30 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		pnewzstencil: Option<&IDirect3DSurface9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetDepthStencilSurface_pre");
+		// log::info!("MyDirect3DDevice9::SetDepthStencilSurface_pre");
 		let r = unsafe { self.f.SetDepthStencilSurface(pnewzstencil) };
-		info!("MyDirect3DDevice9::SetDepthStencilSurface");
+		// log::info!("MyDirect3DDevice9::SetDepthStencilSurface");
 		r
 	}
 
 	fn GetDepthStencilSurface(&self) -> windows::core::Result<IDirect3DSurface9> {
-		info!("MyDirect3DDevice9::GetDepthStencilSurface_pre");
+		// log::info!("MyDirect3DDevice9::GetDepthStencilSurface_pre");
 		let r = unsafe { self.f.GetDepthStencilSurface() };
-		info!("MyDirect3DDevice9::GetDepthStencilSurface");
+		// log::info!("MyDirect3DDevice9::GetDepthStencilSurface");
 		r
 	}
 
 	fn BeginScene(&self) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::BeginScene_pre");
+		// log::info!("MyDirect3DDevice9::BeginScene_pre");
 		let r = unsafe { self.f.BeginScene() };
-		info!("MyDirect3DDevice9::BeginScene");
+		// log::info!("MyDirect3DDevice9::BeginScene");
 		r
 	}
 
 	fn EndScene(&self) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::EndScene_pre");
+		// log::info!("MyDirect3DDevice9::EndScene_pre");
 		let r = unsafe { self.f.EndScene() };
-		info!("MyDirect3DDevice9::EndScene");
+		// log::info!("MyDirect3DDevice9::EndScene");
 		r
 	}
 
@@ -550,9 +555,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		z: f32,
 		stencil: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::Clear_pre");
+		// log::info!("MyDirect3DDevice9::Clear_pre");
 		let r = unsafe { self.f.Clear(count, prects, flags, color, z, stencil) };
-		info!("MyDirect3DDevice9::Clear");
+		// log::info!("MyDirect3DDevice9::Clear");
 		r
 	}
 
@@ -561,9 +566,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		state: D3DTRANSFORMSTATETYPE,
 		pmatrix: *const windows::Foundation::Numerics::Matrix4x4,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetTransform_pre");
+		// log::info!("MyDirect3DDevice9::SetTransform_pre");
 		let r = unsafe { self.f.SetTransform(state, pmatrix) };
-		info!("MyDirect3DDevice9::SetTransform");
+		// log::info!("MyDirect3DDevice9::SetTransform");
 		r
 	}
 
@@ -572,9 +577,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		state: D3DTRANSFORMSTATETYPE,
 		pmatrix: *mut windows::Foundation::Numerics::Matrix4x4,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetTransform_pre");
+		// log::info!("MyDirect3DDevice9::GetTransform_pre");
 		let r = unsafe { self.f.GetTransform(state, pmatrix) };
-		info!("MyDirect3DDevice9::GetTransform");
+		// log::info!("MyDirect3DDevice9::GetTransform");
 		r
 	}
 
@@ -583,51 +588,51 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		param0: D3DTRANSFORMSTATETYPE,
 		param1: *const windows::Foundation::Numerics::Matrix4x4,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::MultiplyTransform_pre");
+		// log::info!("MyDirect3DDevice9::MultiplyTransform_pre");
 		let r = unsafe { self.f.MultiplyTransform(param0, param1) };
-		info!("MyDirect3DDevice9::MultiplyTransform");
+		// log::info!("MyDirect3DDevice9::MultiplyTransform");
 		r
 	}
 
 	fn SetViewport(&self, pviewport: *const D3DVIEWPORT9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetViewport_pre");
+		// log::info!("MyDirect3DDevice9::SetViewport_pre");
 		let r = unsafe { self.f.SetViewport(pviewport) };
-		info!("MyDirect3DDevice9::SetViewport");
+		// log::info!("MyDirect3DDevice9::SetViewport");
 		r
 	}
 
 	fn GetViewport(&self, pviewport: *mut D3DVIEWPORT9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetViewport_pre");
+		// log::info!("MyDirect3DDevice9::GetViewport_pre");
 		let r = unsafe { self.f.GetViewport(pviewport) };
-		info!("MyDirect3DDevice9::GetViewport");
+		// log::info!("MyDirect3DDevice9::GetViewport");
 		r
 	}
 
 	fn SetMaterial(&self, pmaterial: *const D3DMATERIAL9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetMaterial_pre");
+		// log::info!("MyDirect3DDevice9::SetMaterial_pre");
 		let r = unsafe { self.f.SetMaterial(pmaterial) };
-		info!("MyDirect3DDevice9::SetMaterial");
+		// log::info!("MyDirect3DDevice9::SetMaterial");
 		r
 	}
 
 	fn GetMaterial(&self, pmaterial: *mut D3DMATERIAL9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetMaterial_pre");
+		// log::info!("MyDirect3DDevice9::GetMaterial_pre");
 		let r = unsafe { self.f.GetMaterial(pmaterial) };
-		info!("MyDirect3DDevice9::GetMaterial");
+		// log::info!("MyDirect3DDevice9::GetMaterial");
 		r
 	}
 
 	fn SetLight(&self, index: u32, param1: *const D3DLIGHT9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetLight_pre");
+		// log::info!("MyDirect3DDevice9::SetLight_pre");
 		let r = unsafe { self.f.SetLight(index, param1) };
-		info!("MyDirect3DDevice9::SetLight");
+		// log::info!("MyDirect3DDevice9::SetLight");
 		r
 	}
 
 	fn GetLight(&self, index: u32, param1: *mut D3DLIGHT9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetLight_pre");
+		// log::info!("MyDirect3DDevice9::GetLight_pre");
 		let r = unsafe { self.f.GetLight(index, param1) };
-		info!("MyDirect3DDevice9::GetLight");
+		// log::info!("MyDirect3DDevice9::GetLight");
 		r
 	}
 
@@ -636,9 +641,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		index: u32,
 		enable: windows::Win32::Foundation::BOOL,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::LightEnable_pre");
+		// log::info!("MyDirect3DDevice9::LightEnable_pre");
 		let r = unsafe { self.f.LightEnable(index, enable) };
-		info!("MyDirect3DDevice9::LightEnable");
+		// log::info!("MyDirect3DDevice9::LightEnable");
 		r
 	}
 
@@ -647,30 +652,30 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		index: u32,
 		penable: *mut windows::Win32::Foundation::BOOL,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetLightEnable_pre");
+		// log::info!("MyDirect3DDevice9::GetLightEnable_pre");
 		let r = unsafe { self.f.GetLightEnable(index, penable) };
-		info!("MyDirect3DDevice9::GetLightEnable");
+		// log::info!("MyDirect3DDevice9::GetLightEnable");
 		r
 	}
 
 	fn SetClipPlane(&self, index: u32, pplane: *const f32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetClipPlane_pre");
+		// log::info!("MyDirect3DDevice9::SetClipPlane_pre");
 		let r = unsafe { self.f.SetClipPlane(index, pplane) };
-		info!("MyDirect3DDevice9::SetClipPlane");
+		// log::info!("MyDirect3DDevice9::SetClipPlane");
 		r
 	}
 
 	fn GetClipPlane(&self, index: u32, pplane: *mut f32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetClipPlane_pre");
+		// log::info!("MyDirect3DDevice9::GetClipPlane_pre");
 		let r = unsafe { self.f.GetClipPlane(index, pplane) };
-		info!("MyDirect3DDevice9::GetClipPlane");
+		// log::info!("MyDirect3DDevice9::GetClipPlane");
 		r
 	}
 
 	fn SetRenderState(&self, state: D3DRENDERSTATETYPE, value: u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetRenderState_pre");
+		// log::info!("MyDirect3DDevice9::SetRenderState_pre");
 		let r = unsafe { self.f.SetRenderState(state, value) };
-		info!("MyDirect3DDevice9::SetRenderState");
+		// log::info!("MyDirect3DDevice9::SetRenderState");
 		r
 	}
 
@@ -679,9 +684,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		state: D3DRENDERSTATETYPE,
 		pvalue: *mut u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetRenderState_pre");
+		// log::info!("MyDirect3DDevice9::GetRenderState_pre");
 		let r = unsafe { self.f.GetRenderState(state, pvalue) };
-		info!("MyDirect3DDevice9::GetRenderState");
+		// log::info!("MyDirect3DDevice9::GetRenderState");
 		r
 	}
 
@@ -689,44 +694,44 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		stateblock_type: D3DSTATEBLOCKTYPE,
 	) -> windows::core::Result<IDirect3DStateBlock9> {
-		info!("MyDirect3DDevice9::CreateStateBlock_pre");
+		// log::info!("MyDirect3DDevice9::CreateStateBlock_pre");
 		let r = unsafe { self.f.CreateStateBlock(stateblock_type) };
-		info!("MyDirect3DDevice9::CreateStateBlock");
+		// log::info!("MyDirect3DDevice9::CreateStateBlock");
 		r
 	}
 
 	fn BeginStateBlock(&self) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::BeginStateBlock_pre");
+		// log::info!("MyDirect3DDevice9::BeginStateBlock_pre");
 		let r = unsafe { self.f.BeginStateBlock() };
-		info!("MyDirect3DDevice9::BeginStateBlock");
+		// log::info!("MyDirect3DDevice9::BeginStateBlock");
 		r
 	}
 
 	fn EndStateBlock(&self) -> windows::core::Result<IDirect3DStateBlock9> {
-		info!("MyDirect3DDevice9::EndStateBlock_pre");
+		// log::info!("MyDirect3DDevice9::EndStateBlock_pre");
 		let r = unsafe { self.f.EndStateBlock() };
-		info!("MyDirect3DDevice9::EndStateBlock");
+		// log::info!("MyDirect3DDevice9::EndStateBlock");
 		r
 	}
 
 	fn SetClipStatus(&self, pclipstatus: *const D3DCLIPSTATUS9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetClipStatus_pre");
+		// log::info!("MyDirect3DDevice9::SetClipStatus_pre");
 		let r = unsafe { self.f.SetClipStatus(pclipstatus) };
-		info!("MyDirect3DDevice9::SetClipStatus");
+		// log::info!("MyDirect3DDevice9::SetClipStatus");
 		r
 	}
 
 	fn GetClipStatus(&self, pclipstatus: *mut D3DCLIPSTATUS9) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetClipStatus_pre");
+		// log::info!("MyDirect3DDevice9::GetClipStatus_pre");
 		let r = unsafe { self.f.GetClipStatus(pclipstatus) };
-		info!("MyDirect3DDevice9::GetClipStatus");
+		// log::info!("MyDirect3DDevice9::GetClipStatus");
 		r
 	}
 
 	fn GetTexture(&self, stage: u32) -> windows::core::Result<IDirect3DBaseTexture9> {
-		info!("MyDirect3DDevice9::GetTexture_pre");
+		// log::info!("MyDirect3DDevice9::GetTexture_pre");
 		let r = unsafe { self.f.GetTexture(stage) };
-		info!("MyDirect3DDevice9::GetTexture");
+		// log::info!("MyDirect3DDevice9::GetTexture");
 		r
 	}
 
@@ -735,9 +740,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		stage: u32,
 		ptexture: Option<&IDirect3DBaseTexture9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetTexture_pre");
+		// log::info!("MyDirect3DDevice9::SetTexture_pre");
 		let r = unsafe { self.f.SetTexture(stage, ptexture) };
-		info!("MyDirect3DDevice9::SetTexture");
+		// log::info!("MyDirect3DDevice9::SetTexture");
 		r
 	}
 
@@ -747,9 +752,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		texstage_type: D3DTEXTURESTAGESTATETYPE,
 		pvalue: *mut u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetTextureStageState_pre");
+		// log::info!("MyDirect3DDevice9::GetTextureStageState_pre");
 		let r = unsafe { self.f.GetTextureStageState(stage, texstage_type, pvalue) };
-		info!("MyDirect3DDevice9::GetTextureStageState");
+		// log::info!("MyDirect3DDevice9::GetTextureStageState");
 		r
 	}
 
@@ -759,9 +764,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		texstage_type: D3DTEXTURESTAGESTATETYPE,
 		value: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetTextureStageState_pre");
+		// log::info!("MyDirect3DDevice9::SetTextureStageState_pre");
 		let r = unsafe { self.f.SetTextureStageState(stage, texstage_type, value) };
-		info!("MyDirect3DDevice9::SetTextureStageState");
+		// log::info!("MyDirect3DDevice9::SetTextureStageState");
 		r
 	}
 
@@ -771,9 +776,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		samplerstate_type: D3DSAMPLERSTATETYPE,
 		pvalue: *mut u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetSamplerState_pre");
+		// log::info!("MyDirect3DDevice9::GetSamplerState_pre");
 		let r = unsafe { self.f.GetSamplerState(sampler, samplerstate_type, pvalue) };
-		info!("MyDirect3DDevice9::GetSamplerState");
+		// log::info!("MyDirect3DDevice9::GetSamplerState");
 		r
 	}
 
@@ -783,16 +788,16 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		samplerstate_type: D3DSAMPLERSTATETYPE,
 		value: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetSamplerState_pre");
+		// log::info!("MyDirect3DDevice9::SetSamplerState_pre");
 		let r = unsafe { self.f.SetSamplerState(sampler, samplerstate_type, value) };
-		info!("MyDirect3DDevice9::SetSamplerState");
+		// log::info!("MyDirect3DDevice9::SetSamplerState");
 		r
 	}
 
 	fn ValidateDevice(&self, pnumpasses: *mut u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::ValidateDevice_pre");
+		// log::info!("MyDirect3DDevice9::ValidateDevice_pre");
 		let r = unsafe { self.f.ValidateDevice(pnumpasses) };
-		info!("MyDirect3DDevice9::ValidateDevice");
+		// log::info!("MyDirect3DDevice9::ValidateDevice");
 		r
 	}
 
@@ -801,9 +806,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		palettenumber: u32,
 		pentries: *const windows::Win32::Graphics::Gdi::PALETTEENTRY,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetPaletteEntries_pre");
+		// log::info!("MyDirect3DDevice9::SetPaletteEntries_pre");
 		let r = unsafe { self.f.SetPaletteEntries(palettenumber, pentries) };
-		info!("MyDirect3DDevice9::SetPaletteEntries");
+		// log::info!("MyDirect3DDevice9::SetPaletteEntries");
 		r
 	}
 
@@ -812,23 +817,23 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		palettenumber: u32,
 		pentries: *mut windows::Win32::Graphics::Gdi::PALETTEENTRY,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetPaletteEntries_pre");
+		// log::info!("MyDirect3DDevice9::GetPaletteEntries_pre");
 		let r = unsafe { self.f.GetPaletteEntries(palettenumber, pentries) };
-		info!("MyDirect3DDevice9::GetPaletteEntries");
+		// log::info!("MyDirect3DDevice9::GetPaletteEntries");
 		r
 	}
 
 	fn SetCurrentTexturePalette(&self, palettenumber: u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetCurrentTexturePalette_pre");
+		// log::info!("MyDirect3DDevice9::SetCurrentTexturePalette_pre");
 		let r = unsafe { self.f.SetCurrentTexturePalette(palettenumber) };
-		info!("MyDirect3DDevice9::SetCurrentTexturePalette");
+		// log::info!("MyDirect3DDevice9::SetCurrentTexturePalette");
 		r
 	}
 
 	fn GetCurrentTexturePalette(&self, palettenumber: *mut u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetCurrentTexturePalette_pre");
+		// log::info!("MyDirect3DDevice9::GetCurrentTexturePalette_pre");
 		let r = unsafe { self.f.GetCurrentTexturePalette(palettenumber) };
-		info!("MyDirect3DDevice9::GetCurrentTexturePalette");
+		// log::info!("MyDirect3DDevice9::GetCurrentTexturePalette");
 		r
 	}
 
@@ -836,9 +841,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		prect: *const windows::Win32::Foundation::RECT,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetScissorRect_pre");
+		// log::info!("MyDirect3DDevice9::SetScissorRect_pre");
 		let r = unsafe { self.f.SetScissorRect(prect) };
-		info!("MyDirect3DDevice9::SetScissorRect");
+		// log::info!("MyDirect3DDevice9::SetScissorRect");
 		r
 	}
 
@@ -846,9 +851,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		prect: *mut windows::Win32::Foundation::RECT,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetScissorRect_pre");
+		// log::info!("MyDirect3DDevice9::GetScissorRect_pre");
 		let r = unsafe { self.f.GetScissorRect(prect) };
-		info!("MyDirect3DDevice9::GetScissorRect");
+		// log::info!("MyDirect3DDevice9::GetScissorRect");
 		r
 	}
 
@@ -856,30 +861,30 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		bsoftware: windows::Win32::Foundation::BOOL,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetSoftwareVertexProcessing_pre");
+		// log::info!("MyDirect3DDevice9::SetSoftwareVertexProcessing_pre");
 		let r = unsafe { self.f.SetSoftwareVertexProcessing(bsoftware) };
-		info!("MyDirect3DDevice9::SetSoftwareVertexProcessing");
+		// log::info!("MyDirect3DDevice9::SetSoftwareVertexProcessing");
 		r
 	}
 
 	fn GetSoftwareVertexProcessing(&self) -> windows::Win32::Foundation::BOOL {
-		info!("MyDirect3DDevice9::GetSoftwareVertexProcessing_pre");
+		// log::info!("MyDirect3DDevice9::GetSoftwareVertexProcessing_pre");
 		let r = unsafe { self.f.GetSoftwareVertexProcessing() };
-		info!("MyDirect3DDevice9::GetSoftwareVertexProcessing");
+		// log::info!("MyDirect3DDevice9::GetSoftwareVertexProcessing");
 		r
 	}
 
 	fn SetNPatchMode(&self, nsegments: f32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetNPatchMode_pre");
+		// log::info!("MyDirect3DDevice9::SetNPatchMode_pre");
 		let r = unsafe { self.f.SetNPatchMode(nsegments) };
-		info!("MyDirect3DDevice9::SetNPatchMode");
+		// log::info!("MyDirect3DDevice9::SetNPatchMode");
 		r
 	}
 
 	fn GetNPatchMode(&self) -> f32 {
-		info!("MyDirect3DDevice9::GetNPatchMode_pre");
+		// log::info!("MyDirect3DDevice9::GetNPatchMode_pre");
 		let r = unsafe { self.f.GetNPatchMode() };
-		info!("MyDirect3DDevice9::GetNPatchMode");
+		// log::info!("MyDirect3DDevice9::GetNPatchMode");
 		r
 	}
 
@@ -889,12 +894,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		startvertex: u32,
 		primitivecount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::DrawPrimitive_pre");
+		// log::info!("MyDirect3DDevice9::DrawPrimitive_pre");
 		let r = unsafe {
 			self.f
 				.DrawPrimitive(primitivetype, startvertex, primitivecount)
 		};
-		info!("MyDirect3DDevice9::DrawPrimitive");
+		// log::info!("MyDirect3DDevice9::DrawPrimitive");
 		r
 	}
 
@@ -907,7 +912,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		startindex: u32,
 		primcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::DrawIndexedPrimitive_pre");
+		// log::info!("MyDirect3DDevice9::DrawIndexedPrimitive_pre");
 		let r = unsafe {
 			self.f.DrawIndexedPrimitive(
 				param0,
@@ -918,7 +923,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				primcount,
 			)
 		};
-		info!("MyDirect3DDevice9::DrawIndexedPrimitive");
+		// log::info!("MyDirect3DDevice9::DrawIndexedPrimitive");
 		r
 	}
 
@@ -929,7 +934,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pvertexstreamzerodata: *const core::ffi::c_void,
 		vertexstreamzerostride: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::DrawPrimitiveUP_pre");
+		// log::info!("MyDirect3DDevice9::DrawPrimitiveUP_pre");
 		let r = unsafe {
 			self.f.DrawPrimitiveUP(
 				primitivetype,
@@ -938,7 +943,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				vertexstreamzerostride,
 			)
 		};
-		info!("MyDirect3DDevice9::DrawPrimitiveUP");
+		// log::info!("MyDirect3DDevice9::DrawPrimitiveUP");
 		r
 	}
 
@@ -953,7 +958,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pvertexstreamzerodata: *const core::ffi::c_void,
 		vertexstreamzerostride: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::DrawIndexedPrimitiveUP_pre");
+		// log::info!("MyDirect3DDevice9::DrawIndexedPrimitiveUP_pre");
 		let r = unsafe {
 			self.f.DrawIndexedPrimitiveUP(
 				primitivetype,
@@ -966,7 +971,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				vertexstreamzerostride,
 			)
 		};
-		info!("MyDirect3DDevice9::DrawIndexedPrimitiveUP");
+		// log::info!("MyDirect3DDevice9::DrawIndexedPrimitiveUP");
 		r
 	}
 
@@ -979,7 +984,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pvertexdecl: Option<&IDirect3DVertexDeclaration9>,
 		flags: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::ProcessVertices_pre");
+		// log::info!("MyDirect3DDevice9::ProcessVertices_pre");
 		let r = unsafe {
 			self.f.ProcessVertices(
 				srcstartindex,
@@ -990,7 +995,7 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 				flags,
 			)
 		};
-		info!("MyDirect3DDevice9::ProcessVertices");
+		// log::info!("MyDirect3DDevice9::ProcessVertices");
 		r
 	}
 
@@ -998,9 +1003,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		pvertexelements: *const D3DVERTEXELEMENT9,
 	) -> windows::core::Result<IDirect3DVertexDeclaration9> {
-		info!("MyDirect3DDevice9::CreateVertexDeclaration_pre");
+		// log::info!("MyDirect3DDevice9::CreateVertexDeclaration_pre");
 		let r = unsafe { self.f.CreateVertexDeclaration(pvertexelements) };
-		info!("MyDirect3DDevice9::CreateVertexDeclaration");
+		// log::info!("MyDirect3DDevice9::CreateVertexDeclaration");
 		r
 	}
 
@@ -1008,30 +1013,30 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		pdecl: Option<&IDirect3DVertexDeclaration9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetVertexDeclaration_pre");
+		// log::info!("MyDirect3DDevice9::SetVertexDeclaration_pre");
 		let r = unsafe { self.f.SetVertexDeclaration(pdecl) };
-		info!("MyDirect3DDevice9::SetVertexDeclaration");
+		// log::info!("MyDirect3DDevice9::SetVertexDeclaration");
 		r
 	}
 
 	fn GetVertexDeclaration(&self) -> windows::core::Result<IDirect3DVertexDeclaration9> {
-		info!("MyDirect3DDevice9::GetVertexDeclaration_pre");
+		// log::info!("MyDirect3DDevice9::GetVertexDeclaration_pre");
 		let r = unsafe { self.f.GetVertexDeclaration() };
-		info!("MyDirect3DDevice9::GetVertexDeclaration");
+		// log::info!("MyDirect3DDevice9::GetVertexDeclaration");
 		r
 	}
 
 	fn SetFVF(&self, fvf: u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetFVF_pre");
+		// log::info!("MyDirect3DDevice9::SetFVF_pre");
 		let r = unsafe { self.f.SetFVF(fvf) };
-		info!("MyDirect3DDevice9::SetFVF");
+		// log::info!("MyDirect3DDevice9::SetFVF");
 		r
 	}
 
 	fn GetFVF(&self, pfvf: *mut u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetFVF_pre");
+		// log::info!("MyDirect3DDevice9::GetFVF_pre");
 		let r = unsafe { self.f.GetFVF(pfvf) };
-		info!("MyDirect3DDevice9::GetFVF");
+		// log::info!("MyDirect3DDevice9::GetFVF");
 		r
 	}
 
@@ -1039,9 +1044,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		pfunction: *const u32,
 	) -> windows::core::Result<IDirect3DVertexShader9> {
-		info!("MyDirect3DDevice9::CreateVertexShader_pre");
+		// log::info!("MyDirect3DDevice9::CreateVertexShader_pre");
 		let r = unsafe { self.f.CreateVertexShader(pfunction) };
-		info!("MyDirect3DDevice9::CreateVertexShader");
+		// log::info!("MyDirect3DDevice9::CreateVertexShader");
 		r
 	}
 
@@ -1049,16 +1054,16 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		pshader: Option<&IDirect3DVertexShader9>,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetVertexShader_pre");
+		// log::info!("MyDirect3DDevice9::SetVertexShader_pre");
 		let r = unsafe { self.f.SetVertexShader(pshader) };
-		info!("MyDirect3DDevice9::SetVertexShader");
+		// log::info!("MyDirect3DDevice9::SetVertexShader");
 		r
 	}
 
 	fn GetVertexShader(&self) -> windows::core::Result<IDirect3DVertexShader9> {
-		info!("MyDirect3DDevice9::GetVertexShader_pre");
+		// log::info!("MyDirect3DDevice9::GetVertexShader_pre");
 		let r = unsafe { self.f.GetVertexShader() };
-		info!("MyDirect3DDevice9::GetVertexShader");
+		// log::info!("MyDirect3DDevice9::GetVertexShader");
 		r
 	}
 
@@ -1068,12 +1073,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *const f32,
 		vector4fcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetVertexShaderConstantF_pre");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantF_pre");
 		let r = unsafe {
 			self.f
 				.SetVertexShaderConstantF(startregister, pconstantdata, vector4fcount)
 		};
-		info!("MyDirect3DDevice9::SetVertexShaderConstantF");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantF");
 		r
 	}
 
@@ -1083,12 +1088,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *mut f32,
 		vector4fcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetVertexShaderConstantF_pre");
+		// log::info!("MyDirect3DDevice9::GetVertexShaderConstantF_pre");
 		let r = unsafe {
 			self.f
 				.GetVertexShaderConstantF(startregister, pconstantdata, vector4fcount)
 		};
-		info!("MyDirect3DDevice9::GetVertexShaderConstantF");
+		// log::info!("MyDirect3DDevice9::GetVertexShaderConstantF");
 		r
 	}
 
@@ -1098,12 +1103,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *const i32,
 		vector4icount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetVertexShaderConstantI_pre");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantI_pre");
 		let r = unsafe {
 			self.f
 				.SetVertexShaderConstantI(startregister, pconstantdata, vector4icount)
 		};
-		info!("MyDirect3DDevice9::SetVertexShaderConstantI");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantI");
 		r
 	}
 
@@ -1113,12 +1118,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *mut i32,
 		vector4icount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetVertexShaderConstantI_pre");
+		// log::info!("MyDirect3DDevice9::GetVertexShaderConstantI_pre");
 		let r = unsafe {
 			self.f
 				.GetVertexShaderConstantI(startregister, pconstantdata, vector4icount)
 		};
-		info!("MyDirect3DDevice9::GetVertexShaderConstantI");
+		// log::info!("MyDirect3DDevice9::GetVertexShaderConstantI");
 		r
 	}
 
@@ -1128,12 +1133,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *const windows::Win32::Foundation::BOOL,
 		boolcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetVertexShaderConstantB_pre");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantB_pre");
 		let r = unsafe {
 			self.f
 				.SetVertexShaderConstantB(startregister, pconstantdata, boolcount)
 		};
-		info!("MyDirect3DDevice9::SetVertexShaderConstantB");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantB");
 		r
 	}
 
@@ -1143,12 +1148,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *mut windows::Win32::Foundation::BOOL,
 		boolcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetVertexShaderConstantB_pre");
+		// log::info!("MyDirect3DDevice9::GetVertexShaderConstantB_pre");
 		let r = unsafe {
 			self.f
 				.GetVertexShaderConstantB(startregister, pconstantdata, boolcount)
 		};
-		info!("MyDirect3DDevice9::GetVertexShaderConstantB");
+		// log::info!("MyDirect3DDevice9::GetVertexShaderConstantB");
 		r
 	}
 
@@ -1159,12 +1164,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		offsetinbytes: u32,
 		stride: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetStreamSource_pre");
+		// log::info!("MyDirect3DDevice9::SetStreamSource_pre");
 		let r = unsafe {
 			self.f
 				.SetStreamSource(streamnumber, pstreamdata, offsetinbytes, stride)
 		};
-		info!("MyDirect3DDevice9::SetStreamSource");
+		// log::info!("MyDirect3DDevice9::SetStreamSource");
 		r
 	}
 
@@ -1175,19 +1180,19 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		poffsetinbytes: *mut u32,
 		pstride: *mut u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetStreamSource_pre");
+		// log::info!("MyDirect3DDevice9::GetStreamSource_pre");
 		let r = unsafe {
 			self.f
 				.GetStreamSource(streamnumber, ppstreamdata, poffsetinbytes, pstride)
 		};
-		info!("MyDirect3DDevice9::GetStreamSource");
+		// log::info!("MyDirect3DDevice9::GetStreamSource");
 		r
 	}
 
 	fn SetStreamSourceFreq(&self, streamnumber: u32, setting: u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetStreamSourceFreq_pre");
+		// log::info!("MyDirect3DDevice9::SetStreamSourceFreq_pre");
 		let r = unsafe { self.f.SetStreamSourceFreq(streamnumber, setting) };
-		info!("MyDirect3DDevice9::SetStreamSourceFreq");
+		// log::info!("MyDirect3DDevice9::SetStreamSourceFreq");
 		r
 	}
 
@@ -1196,23 +1201,23 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		streamnumber: u32,
 		psetting: *mut u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetStreamSourceFreq_pre");
+		// log::info!("MyDirect3DDevice9::GetStreamSourceFreq_pre");
 		let r = unsafe { self.f.GetStreamSourceFreq(streamnumber, psetting) };
-		info!("MyDirect3DDevice9::GetStreamSourceFreq");
+		// log::info!("MyDirect3DDevice9::GetStreamSourceFreq");
 		r
 	}
 
 	fn SetIndices(&self, pindexdata: Option<&IDirect3DIndexBuffer9>) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetIndices_pre");
+		// log::info!("MyDirect3DDevice9::SetIndices_pre");
 		let r = unsafe { self.f.SetIndices(pindexdata) };
-		info!("MyDirect3DDevice9::SetIndices");
+		// log::info!("MyDirect3DDevice9::SetIndices");
 		r
 	}
 
 	fn GetIndices(&self) -> windows::core::Result<IDirect3DIndexBuffer9> {
-		info!("MyDirect3DDevice9::GetIndices_pre");
+		// log::info!("MyDirect3DDevice9::GetIndices_pre");
 		let r = unsafe { self.f.GetIndices() };
-		info!("MyDirect3DDevice9::GetIndices");
+		// log::info!("MyDirect3DDevice9::GetIndices");
 		r
 	}
 
@@ -1220,23 +1225,23 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		&self,
 		pfunction: *const u32,
 	) -> windows::core::Result<IDirect3DPixelShader9> {
-		info!("MyDirect3DDevice9::CreatePixelShader_pre");
+		// log::info!("MyDirect3DDevice9::CreatePixelShader_pre");
 		let r = unsafe { self.f.CreatePixelShader(pfunction) };
-		info!("MyDirect3DDevice9::CreatePixelShader");
+		// log::info!("MyDirect3DDevice9::CreatePixelShader");
 		r
 	}
 
 	fn SetPixelShader(&self, pshader: Option<&IDirect3DPixelShader9>) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetPixelShader_pre");
+		// log::info!("MyDirect3DDevice9::SetPixelShader_pre");
 		let r = unsafe { self.f.SetPixelShader(pshader) };
-		info!("MyDirect3DDevice9::SetPixelShader");
+		// log::info!("MyDirect3DDevice9::SetPixelShader");
 		r
 	}
 
 	fn GetPixelShader(&self) -> windows::core::Result<IDirect3DPixelShader9> {
-		info!("MyDirect3DDevice9::GetPixelShader_pre");
+		// log::info!("MyDirect3DDevice9::GetPixelShader_pre");
 		let r = unsafe { self.f.GetPixelShader() };
-		info!("MyDirect3DDevice9::GetPixelShader");
+		// log::info!("MyDirect3DDevice9::GetPixelShader");
 		r
 	}
 
@@ -1246,12 +1251,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *const f32,
 		vector4fcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetPixelShaderConstantF_pre");
+		// log::info!("MyDirect3DDevice9::SetPixelShaderConstantF_pre");
 		let r = unsafe {
 			self.f
 				.SetPixelShaderConstantF(startregister, pconstantdata, vector4fcount)
 		};
-		info!("MyDirect3DDevice9::SetPixelShaderConstantF");
+		// log::info!("MyDirect3DDevice9::SetPixelShaderConstantF");
 		r
 	}
 
@@ -1261,12 +1266,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *mut f32,
 		vector4fcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetPixelShaderConstantF_pre");
+		// log::info!("MyDirect3DDevice9::GetPixelShaderConstantF_pre");
 		let r = unsafe {
 			self.f
 				.GetPixelShaderConstantF(startregister, pconstantdata, vector4fcount)
 		};
-		info!("MyDirect3DDevice9::GetPixelShaderConstantF");
+		// log::info!("MyDirect3DDevice9::GetPixelShaderConstantF");
 		r
 	}
 
@@ -1276,12 +1281,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *const i32,
 		vector4icount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetPixelShaderConstantI_pre");
+		// log::info!("MyDirect3DDevice9::SetPixelShaderConstantI_pre");
 		let r = unsafe {
 			self.f
 				.SetPixelShaderConstantI(startregister, pconstantdata, vector4icount)
 		};
-		info!("MyDirect3DDevice9::SetPixelShaderConstantI");
+		// log::info!("MyDirect3DDevice9::SetPixelShaderConstantI");
 		r
 	}
 
@@ -1291,12 +1296,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *mut i32,
 		vector4icount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetPixelShaderConstantI_pre");
+		// log::info!("MyDirect3DDevice9::GetPixelShaderConstantI_pre");
 		let r = unsafe {
 			self.f
 				.GetPixelShaderConstantI(startregister, pconstantdata, vector4icount)
 		};
-		info!("MyDirect3DDevice9::GetPixelShaderConstantI");
+		// log::info!("MyDirect3DDevice9::GetPixelShaderConstantI");
 		r
 	}
 
@@ -1306,12 +1311,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *const windows::Win32::Foundation::BOOL,
 		boolcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::SetVertexShaderConstantB_pre");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantB_pre");
 		let r = unsafe {
 			self.f
 				.SetPixelShaderConstantB(startregister, pconstantdata, boolcount)
 		};
-		info!("MyDirect3DDevice9::SetVertexShaderConstantB");
+		// log::info!("MyDirect3DDevice9::SetVertexShaderConstantB");
 		r
 	}
 
@@ -1321,12 +1326,12 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pconstantdata: *mut windows::Win32::Foundation::BOOL,
 		boolcount: u32,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::GetPixelShaderConstantB_pre");
+		// log::info!("MyDirect3DDevice9::GetPixelShaderConstantB_pre");
 		let r = unsafe {
 			self.f
 				.GetPixelShaderConstantB(startregister, pconstantdata, boolcount)
 		};
-		info!("MyDirect3DDevice9::GetPixelShaderConstantB");
+		// log::info!("MyDirect3DDevice9::GetPixelShaderConstantB");
 		r
 	}
 
@@ -1336,9 +1341,9 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pnumsegs: *const f32,
 		prectpatchinfo: *const D3DRECTPATCH_INFO,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::DrawRectPatch_pre");
+		// log::info!("MyDirect3DDevice9::DrawRectPatch_pre");
 		let r = unsafe { self.f.DrawRectPatch(handle, pnumsegs, prectpatchinfo) };
-		info!("MyDirect3DDevice9::DrawRectPatch");
+		// log::info!("MyDirect3DDevice9::DrawRectPatch");
 		r
 	}
 
@@ -1348,24 +1353,24 @@ impl IDirect3DDevice9_Impl for MyDirect3DDevice9 {
 		pnumsegs: *const f32,
 		ptripatchinfo: *const D3DTRIPATCH_INFO,
 	) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::DrawTriPatch_pre");
+		// log::info!("MyDirect3DDevice9::DrawTriPatch_pre");
 		let r = unsafe { self.f.DrawTriPatch(handle, pnumsegs, ptripatchinfo) };
-		info!("MyDirect3DDevice9::DrawTriPatch");
+		// log::info!("MyDirect3DDevice9::DrawTriPatch");
 		r
 	}
 
 	fn DeletePatch(&self, handle: u32) -> windows::core::Result<()> {
-		info!("MyDirect3DDevice9::DeletePatch_pre");
+		// log::info!("MyDirect3DDevice9::DeletePatch_pre");
 		let r = unsafe { self.f.DeletePatch(handle) };
-		info!("MyDirect3DDevice9::DeletePatch");
+		// log::info!("MyDirect3DDevice9::DeletePatch");
 		r
 	}
 
-	// Last
+	//FIXME: https://github.com/microsoft/windows-rs/issues/3485
 	fn CreateQuery(&self, q_type: D3DQUERYTYPE) -> windows::core::Result<IDirect3DQuery9> {
-		info!("MyDirect3DDevice9::CreateQuery_pre({self:?}, {q_type:?})");
+		// log::info!("MyDirect3DDevice9::CreateQuery_pre(q_type = {q_type:?})");
 		let r = unsafe { self.f.CreateQuery(q_type) };
-		info!("MyDirect3DDevice9::CreateQuery = {r:?}");
+		// log::info!("MyDirect3DDevice9::CreateQuery(q_type = {q_type:?}) -> {r:?}");
 		r
 	}
 }

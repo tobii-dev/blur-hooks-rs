@@ -3,7 +3,10 @@ use std::sync::{LazyLock, Mutex};
 use blur_plugins_core::{BlurAPI, BlurEvent, BlurNotification, BlurPlugin, FnPluginInit};
 use windows::{
 	core::s,
-	Win32::{Foundation::HMODULE, System::LibraryLoader::GetProcAddress},
+	Win32::{
+		Foundation::HMODULE, Graphics::Direct3D9::IDirect3DDevice9,
+		System::LibraryLoader::GetProcAddress,
+	},
 };
 
 use super::{fps::FpsLimiter, game::get_saved_profile_username};
@@ -12,6 +15,7 @@ static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
 	MyBlurAPI {
 		fps_limiter: FpsLimiter::new(),
 		plugins: vec![],
+		d3d9dev: std::ptr::null_mut(),
 	}
 	.into()
 });
@@ -19,6 +23,7 @@ static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
 struct MyBlurAPI {
 	fps_limiter: FpsLimiter,
 	plugins: Vec<Box<dyn BlurPlugin>>,
+	d3d9dev: *mut IDirect3DDevice9,
 }
 
 unsafe impl Send for MyBlurAPI {}
@@ -83,6 +88,10 @@ impl BlurAPI for MyBlurAPI {
 			plugin.on_event(&event);
 		}
 	}
+
+	fn get_d3d9dev(&self) -> *mut std::ffi::c_void {
+		G_BLUR_API.lock().unwrap().d3d9dev as _
+	}
 }
 
 pub fn limit_fps() {
@@ -95,6 +104,11 @@ pub fn free_plugins() {
 
 pub fn get_fps() -> f64 {
 	G_BLUR_API.lock().unwrap().get_fps()
+}
+
+pub fn set_d3d9dev(dev_ptr: *mut IDirect3DDevice9) {
+	log::info!("set_d3d9dev to {dev_ptr:?}");
+	G_BLUR_API.lock().unwrap().d3d9dev = dev_ptr;
 }
 
 pub fn register_plugin_from_dll_handle(handle: HMODULE) -> bool {
