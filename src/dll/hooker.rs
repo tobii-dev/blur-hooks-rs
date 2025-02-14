@@ -136,18 +136,20 @@ unsafe extern "system" fn HOOK_CreateTexture(
 		pptexture,
 		psharedhandle,
 	);
-	log::trace!(
-		"fn_CreateTexture(
-	width = {width:?},
-	height = {height:?},
-	levels = {levels:?},
-	usage = {usage:?},
-	format = {format:?},
-	pool = {pool:?},
-	pptexture = {pptexture:?},
-	psharedhandle = {psharedhandle:?}
-)"
-	);
+	/*
+		log::trace!(
+			"fn_CreateTexture(
+		width = {width:?},
+		height = {height:?},
+		levels = {levels:?},
+		usage = {usage:?},
+		format = {format:?},
+		pool = {pool:?},
+		pptexture = {pptexture:?},
+		psharedhandle = {psharedhandle:?}
+	)"
+		);
+		*/
 	r
 }
 
@@ -157,30 +159,19 @@ unsafe extern "system" fn HOOK_UpdateTexture(
 	pDestinationTexture: *mut IDirect3DBaseTexture9,
 ) -> HRESULT {
 	let fn_UpdateTexture = FN_ORG_UPDATE_TEXTURE.unwrap();
-	log::debug!("fn_UpdateTexture( _, pSourceTexture = {pSourceTexture:?}, pDestinationTexture = {pDestinationTexture:?})");
+	// log::debug!("fn_UpdateTexture( _, pSourceTexture = {pSourceTexture:?}, pDestinationTexture = {pDestinationTexture:?})");
 	let r = fn_UpdateTexture(this, pSourceTexture, pDestinationTexture);
 	r
 }
 
-
-static mut PTR_TMP: *mut c_void = std::ptr::null_mut();
-
 unsafe extern "system" fn HOOK_CreateQuery(
 	this: IDirect3DDevice9,
 	qtype: D3DQUERYTYPE,
-	mut ppQuery: *mut *mut c_void,
+	ppQuery: *mut *mut c_void,
 ) -> HRESULT {
 	let fn_CreateQuery = FN_ORG_CREATE_QUERY.unwrap();
-	let this_ptr: *mut c_void = this.as_raw();
-	log::debug!("fn_CreateQuery_pre(this: {this_ptr:?}, qtype: {qtype:?}, ppQuery: {ppQuery:?})");
-	if ppQuery.is_null() {
-		let p: &mut *mut *mut c_void = &mut ppQuery;
-		*p = std::ptr::addr_of_mut!(PTR_TMP);
-	}
-	let r = fn_CreateQuery(this.into(), qtype, ppQuery);
-	log::debug!(
-		"fn_CreateQuery(this: {this_ptr:?}, qtype: {qtype:?}, ppQuery: {ppQuery:?}) -> {r:?}"
-	);
+	let r = fn_CreateQuery(this, qtype, ppQuery);
+	// log::debug!("fn_CreateQuery({ppQuery})")
 	r
 }
 

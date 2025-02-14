@@ -246,6 +246,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 		crate::dll::hooker::set_hook_create_texture(&dev);
 		crate::dll::hooker::set_hook_update_texture(&dev);
 		crate::dll::hooker::set_hook_create_query(&dev);
+
 		// NOTE: You can ignore the rest of this file, its mental issues by the utterly deranged.
 
 		/*

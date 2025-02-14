@@ -69,12 +69,13 @@ unsafe impl Sync for MyApp {} // <?>
 /// I only do this to shut up the compiler - #[warn(static_mut_refs)]
 /// I think it would be ok to just have G_APP stored as a static mut EguiDx9<>.
 /// The problem with that static mut global that is initialization and access gets kinda ugly (MaybeUninit<>, assume_init_mut()...)
+/// TODO: Maybe the real pro move is moving ownership of G_APP to BlurAPI?
 static G_APP: OnceLock<Mutex<MyApp>> = OnceLock::new();
 
 /// Original WNDPROC, so we can do CallWindowProcW(...) with it
 static mut FN_ORG_WNDPROC: WNDPROC = None;
 
-/// I find this so ugly...
+// This is where the things happen, this is where you make the egui windows and all that
 fn hello_ui(ctx: &egui::Context, state: &mut MyState) {
 	if !state.should_display {
 		return;
@@ -88,6 +89,7 @@ fn hello_ui(ctx: &egui::Context, state: &mut MyState) {
 	});
 }
 
+/// Show the thing!
 pub fn draw(dev: &IDirect3DDevice9) {
 	let app = G_APP.get_or_init(|| {
 		let my_app = unsafe { MyApp::new(dev) }.unwrap();
@@ -96,9 +98,10 @@ pub fn draw(dev: &IDirect3DDevice9) {
 	app.lock().gui.present(dev);
 }
 
-/// Reset APP resources that were destroyed during IDirect3DDevice9::Reset(...)
+/// Reset any APP resources that were destroyed during IDirect3DDevice9::Reset(...)
 pub fn reset() {
 	if let Some(app) = G_APP.get() {
+		// EguiDx9 does this with pre_reset, very cool!
 		app.lock().gui.pre_reset();
 	}
 }

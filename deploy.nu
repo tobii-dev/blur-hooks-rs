@@ -1,4 +1,4 @@
-cargo build -F gui,console --target i686-pc-windows-msvc
+cargo build -F console --target i686-pc-windows-msvc
 cp target\i686-pc-windows-msvc\debug\d3d9.dll D:\Blur\d3d9.dll
 cp target\i686-pc-windows-msvc\debug\d3d9.pdb D:\Blur\d3d9.pdb
 

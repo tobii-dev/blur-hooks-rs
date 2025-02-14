@@ -9,13 +9,17 @@ use windows::{
 	},
 };
 
-use super::{fps::FpsLimiter, game::get_saved_profile_username};
+use super::{
+	fps::FpsLimiter,
+	game::{self},
+};
 
 static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
 	MyBlurAPI {
 		fps_limiter: FpsLimiter::new(),
 		plugins: vec![],
 		d3d9dev: std::ptr::null_mut(),
+		ptr_base: game::get_exe_module_ptr(),
 	}
 	.into()
 });
@@ -24,6 +28,7 @@ struct MyBlurAPI {
 	fps_limiter: FpsLimiter,
 	plugins: Vec<Box<dyn BlurPlugin>>,
 	d3d9dev: *mut IDirect3DDevice9,
+	ptr_base: *mut std::ffi::c_void,
 }
 
 unsafe impl Send for MyBlurAPI {}
@@ -44,6 +49,8 @@ impl MyBlurAPI {
 	}
 
 	fn register_plugin(&mut self, plugin: Box<dyn BlurPlugin>) {
+		let name = plugin.name();
+		log::info!("Loaded plugin: {name}");
 		self.plugins.push(plugin);
 	}
 
@@ -53,6 +60,10 @@ impl MyBlurAPI {
 			log::info!("Unloading plugin: {name}");
 			plugin.free();
 		}
+	}
+
+	fn get_saved_profile_username(&self) -> String {
+		game::read_saved_profile_username(self.ptr_base)
 	}
 }
 
@@ -75,22 +86,22 @@ impl BlurAPI for MyBlurAPI {
 		let event = match notif {
 			BlurNotification::Nothing => BlurEvent::NoEvent,
 			BlurNotification::LoginStart => BlurEvent::LoginStart {
-				username: get_saved_profile_username(),
+				username: self.get_saved_profile_username(),
 			},
 			BlurNotification::LoginEnd { success } => BlurEvent::LoginEnd {
-				username: get_saved_profile_username(),
+				username: self.get_saved_profile_username(),
 				success,
 			},
 			BlurNotification::Screen { name } => BlurEvent::Screen { name },
 		};
-		log::debug!("Sending event: {event:?}");
+		log::debug!("Sending event: {event:?} to all plugins.");
 		for plugin in &self.plugins {
 			plugin.on_event(&event);
 		}
 	}
 
 	fn get_d3d9dev(&self) -> *mut std::ffi::c_void {
-		G_BLUR_API.lock().unwrap().d3d9dev as _
+		(&self).d3d9dev as *mut std::ffi::c_void
 	}
 }
 
@@ -107,7 +118,7 @@ pub fn get_fps() -> f64 {
 }
 
 pub fn set_d3d9dev(dev_ptr: *mut IDirect3DDevice9) {
-	log::info!("set_d3d9dev to {dev_ptr:?}");
+	log::trace!("G_BLUR_API: set_d3d9dev(.={dev_ptr:?})");
 	G_BLUR_API.lock().unwrap().d3d9dev = dev_ptr;
 }
 
