@@ -1,23 +1,42 @@
+use std::{
+	ffi::c_void,
+	sync::{LazyLock, Mutex},
+};
+
 use blur_plugins_core::{BlurAPI, BlurEvent, BlurNotification, BlurPlugin, FnPluginInit};
 use windows::{
 	core::s,
-	Win32::{Foundation::HMODULE, System::LibraryLoader::GetProcAddress},
+	Win32::{
+		Foundation::HMODULE, Graphics::Direct3D9::IDirect3DDevice9,
+		System::LibraryLoader::GetProcAddress,
+	},
 };
 
-use super::game::get_saved_profile_username;
-
-static mut BLUR_API: MyBlurAPI = MyBlurAPI {
-	fps: 0.0,
-	plugins: vec![],
+use super::{
+	fps::FpsLimiter,
+	game::{self},
 };
 
 struct MyBlurAPI {
-	fps: f64,
+	fps_limiter: FpsLimiter,
 	plugins: Vec<Box<dyn BlurPlugin>>,
+	d3d9dev: *mut IDirect3DDevice9,
+	ptr_base: *mut std::ffi::c_void,
 }
 
 unsafe impl Send for MyBlurAPI {}
 unsafe impl Sync for MyBlurAPI {}
+
+static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
+	//TODO: Consider init after d3d9dev initialized
+	MyBlurAPI {
+		fps_limiter: FpsLimiter::new(),
+		plugins: vec![],
+		d3d9dev: std::ptr::null_mut(),
+		ptr_base: game::get_exe_module_ptr(),
+	}
+	.into()
+});
 
 impl MyBlurAPI {
 	pub fn register_plugin_from_dll_handle(&mut self, handle: HMODULE) -> bool {
@@ -34,6 +53,8 @@ impl MyBlurAPI {
 	}
 
 	fn register_plugin(&mut self, plugin: Box<dyn BlurPlugin>) {
+		let name = plugin.name();
+		log::info!("Loaded plugin: {name}");
 		self.plugins.push(plugin);
 	}
 
@@ -44,16 +65,25 @@ impl MyBlurAPI {
 			plugin.free();
 		}
 	}
+
+	/// Send event to all plugins
+	fn dispatch(&self, event: BlurEvent) {
+		log::debug!("Sending event: {event:?} to all plugins.");
+		for plugin in &self.plugins {
+			plugin.on_event(&event);
+		}
+	}
 }
 
 impl BlurAPI for MyBlurAPI {
 	fn set_fps(&mut self, fps: f64) -> bool {
-		self.fps = fps;
-		true
+		let fps = if 0.0 < fps { Some(fps) } else { None };
+		self.fps_limiter.set_fps(fps);
+		fps.is_some()
 	}
 
 	fn get_fps(&self) -> f64 {
-		self.fps
+		self.fps_limiter.get_fps()
 	}
 
 	fn register_event(&mut self, _event: &BlurEvent) {
@@ -64,36 +94,61 @@ impl BlurAPI for MyBlurAPI {
 		let event = match notif {
 			BlurNotification::Nothing => BlurEvent::NoEvent,
 			BlurNotification::LoginStart => BlurEvent::LoginStart {
-				username: get_saved_profile_username(),
+				username: self.get_saved_profile_username(),
 			},
 			BlurNotification::LoginEnd { success } => BlurEvent::LoginEnd {
-				username: get_saved_profile_username(),
+				username: self.get_saved_profile_username(),
 				success,
 			},
 			BlurNotification::Screen { name } => BlurEvent::Screen { name },
+			BlurNotification::PluginStuff { id, data } => {
+				log::trace!("MyBlurAPI got notify for PluginStuff:{id}");
+				BlurEvent::PluginData { id, data }
+			}
 		};
-		log::debug!("Sending event: {event:?}");
-		for plugin in &self.plugins {
-			plugin.on_event(&event);
-		}
+		self.dispatch(event);
+	}
+
+	fn get_d3d9dev(&self) -> *mut std::ffi::c_void {
+		(&self).d3d9dev as *mut std::ffi::c_void
+	}
+
+	fn get_exe_base_ptr(&self) -> *mut std::ffi::c_void {
+		self.ptr_base
+	}
+
+	fn get_saved_profile_username(&self) -> String {
+		game::read_saved_profile_username(self.ptr_base)
 	}
 }
 
+pub fn limit_fps() {
+	G_BLUR_API.lock().unwrap().fps_limiter.limit_fps();
+}
+
 pub fn free_plugins() {
-	// SAFETY: lol no
-	unsafe {
-		BLUR_API.free_plugins();
-	};
+	G_BLUR_API.lock().unwrap().free_plugins();
 }
 
 pub fn get_fps() -> f64 {
-	// SAFETY: hhehehehe... No. Any plugin can read or write to the MyBlurAPI fps value at the same time, even across threads!
-	// FIXME: Mutex?
-	unsafe { BLUR_API.get_fps() }
+	G_BLUR_API.lock().unwrap().get_fps()
+}
+
+pub fn set_d3d9dev(dev_ptr: *mut IDirect3DDevice9) {
+	log::trace!("G_BLUR_API: set_d3d9dev(.={dev_ptr:?})");
+	{
+		// I am scared of using if-let with mutex
+		let mut api = G_BLUR_API.lock().unwrap();
+		api.d3d9dev = dev_ptr;
+		api.dispatch(BlurEvent::Direct3DInit {
+			dev_ptr: dev_ptr as *mut c_void,
+		});
+	}
 }
 
 pub fn register_plugin_from_dll_handle(handle: HMODULE) -> bool {
-	// SAFETY: <?>: Plugins are guaranteed to load sequentially, after d3d9 stuff is init, and after BLUR_API is init.
-	// However, if the plugin does stuff it shouldn't in plugin_init(), this is undefined...
-	unsafe { BLUR_API.register_plugin_from_dll_handle(handle) }
+	G_BLUR_API
+		.lock()
+		.unwrap()
+		.register_plugin_from_dll_handle(handle)
 }
