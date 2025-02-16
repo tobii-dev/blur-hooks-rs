@@ -28,7 +28,7 @@ jobs:
       run: cargo +nightly build --verbose --release --target=i686-pc-windows-msvc
       
     - name: Collect debug artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: blur-hook-rs_debug
         path: |
@@ -36,7 +36,7 @@ jobs:
           ./target/i686-pc-windows-msvc/debug/d3d9.pdb
 
     - name: Collect release artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: blur-hook-rs_release
         path: |
