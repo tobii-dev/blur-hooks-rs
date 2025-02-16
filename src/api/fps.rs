@@ -6,6 +6,8 @@ pub struct FpsLimiter {
 	target_frametime: Option<Duration>,
 }
 
+// TODO: measure rolling average over last 8 frames
+
 impl FpsLimiter {
 	pub fn new() -> Self {
 		Self {

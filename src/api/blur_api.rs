@@ -1,4 +1,7 @@
-use std::sync::{LazyLock, Mutex};
+use std::{
+	ffi::c_void,
+	sync::{LazyLock, Mutex},
+};
 
 use blur_plugins_core::{BlurAPI, BlurEvent, BlurNotification, BlurPlugin, FnPluginInit};
 use windows::{
@@ -14,16 +17,6 @@ use super::{
 	game::{self},
 };
 
-static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
-	MyBlurAPI {
-		fps_limiter: FpsLimiter::new(),
-		plugins: vec![],
-		d3d9dev: std::ptr::null_mut(),
-		ptr_base: game::get_exe_module_ptr(),
-	}
-	.into()
-});
-
 struct MyBlurAPI {
 	fps_limiter: FpsLimiter,
 	plugins: Vec<Box<dyn BlurPlugin>>,
@@ -33,6 +26,17 @@ struct MyBlurAPI {
 
 unsafe impl Send for MyBlurAPI {}
 unsafe impl Sync for MyBlurAPI {}
+
+static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
+	//TODO: Consider init after d3d9dev initialized
+	MyBlurAPI {
+		fps_limiter: FpsLimiter::new(),
+		plugins: vec![],
+		d3d9dev: std::ptr::null_mut(),
+		ptr_base: game::get_exe_module_ptr(),
+	}
+	.into()
+});
 
 impl MyBlurAPI {
 	pub fn register_plugin_from_dll_handle(&mut self, handle: HMODULE) -> bool {
@@ -62,8 +66,12 @@ impl MyBlurAPI {
 		}
 	}
 
-	fn get_saved_profile_username(&self) -> String {
-		game::read_saved_profile_username(self.ptr_base)
+	/// Send event to all plugins
+	fn dispatch(&self, event: BlurEvent) {
+		log::debug!("Sending event: {event:?} to all plugins.");
+		for plugin in &self.plugins {
+			plugin.on_event(&event);
+		}
 	}
 }
 
@@ -93,15 +101,24 @@ impl BlurAPI for MyBlurAPI {
 				success,
 			},
 			BlurNotification::Screen { name } => BlurEvent::Screen { name },
+			BlurNotification::PluginStuff { id, data } => {
+				log::trace!("MyBlurAPI got notify for PluginStuff:{id}");
+				BlurEvent::PluginData { id, data }
+			}
 		};
-		log::debug!("Sending event: {event:?} to all plugins.");
-		for plugin in &self.plugins {
-			plugin.on_event(&event);
-		}
+		self.dispatch(event);
 	}
 
 	fn get_d3d9dev(&self) -> *mut std::ffi::c_void {
 		(&self).d3d9dev as *mut std::ffi::c_void
+	}
+
+	fn get_exe_base_ptr(&self) -> *mut std::ffi::c_void {
+		self.ptr_base
+	}
+
+	fn get_saved_profile_username(&self) -> String {
+		game::read_saved_profile_username(self.ptr_base)
 	}
 }
 
@@ -119,7 +136,14 @@ pub fn get_fps() -> f64 {
 
 pub fn set_d3d9dev(dev_ptr: *mut IDirect3DDevice9) {
 	log::trace!("G_BLUR_API: set_d3d9dev(.={dev_ptr:?})");
-	G_BLUR_API.lock().unwrap().d3d9dev = dev_ptr;
+	{
+		// I am scared of using if-let with mutex
+		let mut api = G_BLUR_API.lock().unwrap();
+		api.d3d9dev = dev_ptr;
+		api.dispatch(BlurEvent::Direct3DInit {
+			dev_ptr: dev_ptr as *mut c_void,
+		});
+	}
 }
 
 pub fn register_plugin_from_dll_handle(handle: HMODULE) -> bool {
