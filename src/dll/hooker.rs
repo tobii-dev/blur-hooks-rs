@@ -189,6 +189,7 @@ unsafe extern "system" fn HOOK_SetTexture(
 ) -> HRESULT {
 	let fn_SetTexture = unsafe { FN_ORG_SET_TEXTURE.unwrap() };
 
+	#[cfg(feature = "tex")]
 	#[allow(static_mut_refs)]
 	let pTexture = unsafe {
 		crate::dll::tex::TEXMGR

@@ -6,4 +6,5 @@ mod f_direct3d9device;
 
 mod hooker;
 
+#[cfg(feature = "tex")]
 mod tex;

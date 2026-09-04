@@ -82,13 +82,13 @@ impl TexMgr {
 		}
 		match MySavedData::update(self, p) {
 			Some(MySavedData {
-				hash: Some(hash),
+				hash: Some(_hash),
 				cooler_tex,
 			}) => {
 				if cooler_tex.is_null() {
 					p
 				} else {
-					log::info!("Texture update: 0x{hash:08X}");
+					// log::info!("Texture update: 0x{_hash:08X}");
 					cooler_tex
 				}
 			}
@@ -141,7 +141,7 @@ fn d3d9_create_tex_from_mem(
 			&mut tex_ptr,
 			std::ptr::null_mut(),
 		);
-		log::trace!("dev.CreateTexture(tex_ptr: {tex_ptr:?}) -> {r:?}");
+		// log::trace!("dev.CreateTexture(tex_ptr: {tex_ptr:?}) -> {r:?}");
 		r.expect("dev.CreateTexture failed");
 	};
 	let tex_ptr = tex_ptr.expect("dev.CreateTexture returned null tex ptr");
@@ -160,7 +160,7 @@ fn d3d9_create_tex_from_mem(
 			.UnlockRect(0)
 			.expect("tex_ptr.UnlockRect(..) failed"); // UPLOAD IT
 	}
-	log::trace!("Created IDirect3DTexture9: {tex_ptr:?}");
+	// log::trace!("Created IDirect3DTexture9: {tex_ptr:?}");
 	tex_ptr.into_raw() as *mut IDirect3DTexture9
 	// .into_raw() prevents the texture getting cleared by mem::drop().
 	// Only the d3d9 device knows about it now
@@ -195,7 +195,6 @@ impl MySavedData {
 			)
 			.is_ok()
 		} {
-			// log::debug!("reused!");
 			return Some(my_data);
 		}
 
@@ -296,7 +295,6 @@ impl MySavedData {
 					windows::Win32::Graphics::Direct3D9::D3DLOCK_READONLY.cast_unsigned(),
 				)
 				.unwrap();
-				// log::debug!("pBits = {}", rect.pBits as usize);
 				rect
 			};
 			let size = (bits * desc.Width * desc.Height) / 8;
@@ -357,7 +355,7 @@ impl MySavedData {
 
 		my_data.hash = get_tex_hash(&tex).ok();
 		if let Some(hash) = my_data.hash {
-			log::debug!("0x{hash:08X}");
+			// log::debug!("0x{hash:08X}");
 			if let Some(cooler) = mgr.map.get(&hash) {
 				my_data.cooler_tex = *cooler;
 			}
