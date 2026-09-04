@@ -1,6 +1,6 @@
 use windows::{
-	core::HRESULT,
 	Win32::Graphics::Direct3D9::{IDirect3D9, IDirect3D9Ex},
+	core::HRESULT,
 };
 
 #[windows_dll::dll("C:\\Windows\\System32\\d3d9.dll")]
@@ -41,18 +41,22 @@ extern "system" {
 
 #[allow(non_snake_case)]
 pub unsafe extern "stdcall" fn D3DPERF_SetOptions(dw_options: u32) {
-	if dxvk_Direct3DCreate9::exists() {
-		return dxvk_D3DPERF_SetOptions(dw_options);
-	};
-	_D3DPERF_SetOptions(dw_options)
+	unsafe {
+		if dxvk_Direct3DCreate9::exists() {
+			return dxvk_D3DPERF_SetOptions(dw_options);
+		};
+		_D3DPERF_SetOptions(dw_options)
+	}
 }
 
 #[allow(non_snake_case)]
 pub unsafe extern "stdcall" fn Direct3DCreate9(sdk_version: u32) -> *mut IDirect3D9 {
-	if dxvk_Direct3DCreate9::exists() {
-		return dxvk_Direct3DCreate9(sdk_version);
-	};
-	_Direct3DCreate9(sdk_version)
+	unsafe {
+		if dxvk_Direct3DCreate9::exists() {
+			return dxvk_Direct3DCreate9(sdk_version);
+		};
+		_Direct3DCreate9(sdk_version)
+	}
 }
 
 #[allow(non_snake_case)]
@@ -60,8 +64,10 @@ pub unsafe extern "stdcall" fn Direct3DCreate9Ex(
 	sdk_version: u32,
 	pp: *mut *mut IDirect3D9Ex,
 ) -> HRESULT {
-	if dxvk_Direct3DCreate9Ex::exists() {
-		return dxvk_Direct3DCreate9Ex(sdk_version, pp);
-	};
-	_Direct3DCreate9Ex(sdk_version, pp)
+	unsafe {
+		if dxvk_Direct3DCreate9Ex::exists() {
+			return dxvk_Direct3DCreate9Ex(sdk_version, pp);
+		};
+		_Direct3DCreate9Ex(sdk_version, pp)
+	}
 }
