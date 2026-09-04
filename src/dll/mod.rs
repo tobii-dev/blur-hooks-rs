@@ -5,3 +5,5 @@ mod f_direct3d9;
 mod f_direct3d9device;
 
 mod hooker;
+
+mod tex;

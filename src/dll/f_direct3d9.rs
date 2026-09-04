@@ -239,6 +239,7 @@ impl IDirect3D9_Impl for MyD3D9 {
 			.unwrap();
 
 		crate::api::blur_api::set_d3d9dev(dev.as_raw() as _);
+		crate::dll::tex::init(&dev);
 
 		crate::dll::hooker::set_hook_endscene(&dev);
 		crate::dll::hooker::set_hook_present(&dev);

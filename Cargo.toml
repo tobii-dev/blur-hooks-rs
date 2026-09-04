@@ -28,6 +28,10 @@ windows = { version = "0.52.0", features = ["Win32_Graphics_Direct3D9", "Win32_F
 
 windows-dll = "0.4.1"
 
+
+image = { version = "0.24.7", features = ["png", "dds", "bmp"] }
+
+
 # Optional dependencies:
 egui = { version = "0.23.0", optional = true }
 egui-d3d9 = { version = "0.3.7", optional = true }
