@@ -20,6 +20,8 @@ use windows::core::ComInterface;
 use windows::core::HRESULT;
 use windows::core::Interface;
 
+type VoidPtr = *mut std::ffi::c_void;
+
 type FnEndScene = unsafe extern "system" fn(this: IDirect3DDevice9) -> HRESULT;
 
 type FnPresent = unsafe extern "system" fn(
@@ -148,20 +150,11 @@ unsafe extern "system" fn HOOK_CreateTexture(
 			psharedhandle,
 		)
 	};
-	/*
-	log::trace!(
-		"fn_CreateTexture(
-		width = {width:?},
-		height = {height:?},
-		levels = {levels:?},
-		usage = {usage:?},
-		format = {format:?},
-		pool = {pool:?},
-		pptexture = {pptexture:?},
-		psharedhandle = {psharedhandle:?}
-	)"
-	);
-	*/
+	if false {
+		log::trace!(
+			"fn_CreateTexture(width = {width:?}, height = {height:?}, levels = {levels:?}, usage = {usage:?}, format = {format:?}, pool = {pool:?}, pptexture = {pptexture:?}, psharedhandle = {psharedhandle:?}) -> {r}"
+		);
+	}
 	r
 }
 
@@ -171,8 +164,12 @@ unsafe extern "system" fn HOOK_UpdateTexture(
 	pDestinationTexture: *mut IDirect3DBaseTexture9,
 ) -> HRESULT {
 	let fn_UpdateTexture = unsafe { FN_ORG_UPDATE_TEXTURE.unwrap() };
-	// log::debug!("fn_UpdateTexture( _, pSourceTexture = {pSourceTexture:?}, pDestinationTexture = {pDestinationTexture:?})");
 	let r = unsafe { fn_UpdateTexture(this, pSourceTexture, pDestinationTexture) };
+	if false {
+		log::debug!(
+			"fn_UpdateTexture( _, pSourceTexture = {pSourceTexture:?}, pDestinationTexture = {pDestinationTexture:?}) -> {r}"
+		);
+	}
 	r
 }
 
@@ -340,7 +337,8 @@ unsafe extern "system" fn HOOK_SetTexture(
 
 					D::D3DFMT_DXT2 | D::D3DFMT_DXT3 | D::D3DFMT_DXT4 | D::D3DFMT_DXT5 => Some(8),
 
-					D::D3DFMT_BINARYBUFFER | D::D3DFMT_VERTEXDATA | D::D3DFMT_UNKNOWN | _ => None,
+					D::D3DFMT_BINARYBUFFER | D::D3DFMT_VERTEXDATA | D::D3DFMT_UNKNOWN => None,
+					_ => None,
 				};
 				let bits = bits.unwrap();
 
@@ -358,12 +356,10 @@ unsafe extern "system" fn HOOK_SetTexture(
 					// log::debug!("pBits = {}", rect.pBits as usize);
 					rect
 				};
-				let total_bits = bits * desc.Width * desc.Height;
-				let size = total_bits / 8;
+				let size = (bits * desc.Width * desc.Height) / 8;
 
-				// /*
-				//  *
-				// 			/** More stolen goods from texmod: */
+				// // More stolen goods from texmod:
+
 				//  * BIG THANKS TO RS !!
 				//  *
 				//  * who gave me his hashing algorithm (well or crc32 algorithm^^)
@@ -374,6 +370,8 @@ unsafe extern "system" fn HOOK_SetTexture(
 				// */
 				//
 
+				// ```c
+				// #define CRC32POLY 0xEDB88320u /* CRC-32 Polynom */
 				// #define CRC32POLY 0xEDB88320u /* CRC-32 Polynom */
 				// #define ulCrc_in 0xffffffff
 				//
@@ -387,6 +385,7 @@ unsafe extern "system" fn HOOK_SetTexture(
 				// 	}
 				// 	return (crc);
 				// }
+				// ```
 
 				fn getCRC32(buf: *const u8, buflen: usize) -> u32 {
 					/// CRC-32 Polynom
@@ -403,7 +402,7 @@ unsafe extern "system" fn HOOK_SetTexture(
 								} else {
 									0
 								};
-							data = data >> 1;
+							data >>= 1;
 						}
 					}
 					crc
@@ -441,8 +440,8 @@ unsafe extern "system" fn HOOK_SetTexture(
 	if saved_data.cooler_tex.is_null() {
 		return unsafe { fn_SetTexture(this, stage, pTexture) };
 	}
-	log::debug!("fn_SetTexture(_, stage = {stage}, pTexture = {pTexture:?})");
-	return unsafe { fn_SetTexture(this, stage, saved_data.cooler_tex) };
+	// log::debug!("fn_SetTexture(_, stage = {stage}, pTexture = {pTexture:?})");
+	unsafe { fn_SetTexture(this, stage, saved_data.cooler_tex) }
 }
 
 pub fn set_hook_endscene(dev: &IDirect3DDevice9) {
@@ -456,7 +455,7 @@ pub fn set_hook_endscene(dev: &IDirect3DDevice9) {
 		panic!("MH_CreateHook(IDirect3DDevice9::EndScene) returned: {v}!");
 	}
 	unsafe {
-		FN_ORG_ENDSCENE = Some(std::mem::transmute(*fn_saved));
+		FN_ORG_ENDSCENE = Some(std::mem::transmute::<VoidPtr, FnEndScene>(*fn_saved));
 	}
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {
@@ -475,7 +474,7 @@ pub fn set_hook_present(dev: &IDirect3DDevice9) {
 		panic!("MH_CreateHook(IDirect3DDevice9::Present) returned: {v}!");
 	}
 	unsafe {
-		FN_ORG_PRESENT = Some(std::mem::transmute(*fn_saved));
+		FN_ORG_PRESENT = Some(std::mem::transmute::<VoidPtr, FnPresent>(*fn_saved));
 	}
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {
@@ -494,7 +493,7 @@ pub fn set_hook_reset(dev: &IDirect3DDevice9) {
 		panic!("MH_CreateHook(IDirect3DDevice9::Reset) returned: {v}!");
 	}
 	unsafe {
-		FN_ORG_RESET = Some(std::mem::transmute(*fn_saved));
+		FN_ORG_RESET = Some(std::mem::transmute::<VoidPtr, FnReset>(*fn_saved));
 	}
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {
@@ -513,7 +512,7 @@ pub fn set_hook_create_texture(dev: &IDirect3DDevice9) {
 		panic!("MH_CreateHook(IDirect3DDevice9::CreateTexture) returned: {v}!");
 	}
 	unsafe {
-		FN_ORG_CREATE_TEXTURE = Some(std::mem::transmute(*fn_saved));
+		FN_ORG_CREATE_TEXTURE = Some(std::mem::transmute::<VoidPtr, FnCreateTexture>(*fn_saved));
 	}
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {
@@ -532,7 +531,7 @@ pub fn set_hook_update_texture(dev: &IDirect3DDevice9) {
 		panic!("MH_CreateHook(IDirect3DDevice9::UpdateTexture) returned: {v}!");
 	}
 	unsafe {
-		FN_ORG_UPDATE_TEXTURE = Some(std::mem::transmute(*fn_saved));
+		FN_ORG_UPDATE_TEXTURE = Some(std::mem::transmute::<VoidPtr, FnUpdateTexture>(*fn_saved));
 	}
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {
@@ -551,7 +550,7 @@ pub fn set_hook_create_query(dev: &IDirect3DDevice9) {
 		panic!("MH_CreateHook(IDirect3DDevice9::CreateQuery) returned: {v}!");
 	}
 	unsafe {
-		FN_ORG_CREATE_QUERY = Some(std::mem::transmute(*fn_saved));
+		FN_ORG_CREATE_QUERY = Some(std::mem::transmute::<VoidPtr, FnCreateQuery>(*fn_saved));
 	}
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {
@@ -570,7 +569,7 @@ pub fn set_hook_set_texture(dev: &IDirect3DDevice9) {
 		panic!("MH_CreateHook(IDirect3DDevice9::SetTexture) returned: {v}!");
 	}
 	unsafe {
-		FN_ORG_SET_TEXTURE = Some(std::mem::transmute(*fn_saved));
+		FN_ORG_SET_TEXTURE = Some(std::mem::transmute::<VoidPtr, FnSetTexture>(*fn_saved));
 	}
 	let v = unsafe { minhook_sys::MH_EnableHook(fn_ptr) };
 	if v != minhook_sys::MH_OK {

@@ -1,6 +1,3 @@
-use windows::Win32::Graphics::Direct3D9::IDirect3D9;
-use windows::Win32::Graphics::Direct3D9::IDirect3D9_Impl;
-use windows::Win32::Graphics::Direct3D9::IDirect3DDevice9;
 use windows::Win32::Graphics::Direct3D9::D3DADAPTER_IDENTIFIER9;
 use windows::Win32::Graphics::Direct3D9::D3DCAPS9;
 use windows::Win32::Graphics::Direct3D9::D3DDEVTYPE;
@@ -9,11 +6,14 @@ use windows::Win32::Graphics::Direct3D9::D3DFORMAT;
 use windows::Win32::Graphics::Direct3D9::D3DMULTISAMPLE_TYPE;
 use windows::Win32::Graphics::Direct3D9::D3DPRESENT_PARAMETERS;
 use windows::Win32::Graphics::Direct3D9::D3DRESOURCETYPE;
+use windows::Win32::Graphics::Direct3D9::IDirect3D9;
+use windows::Win32::Graphics::Direct3D9::IDirect3D9_Impl;
+use windows::Win32::Graphics::Direct3D9::IDirect3DDevice9;
 
 use windows::Win32::Foundation::HWND;
 
-use windows::core::implement;
 use windows::core::Interface;
+use windows::core::implement;
 
 #[derive(Debug)]
 #[implement(IDirect3D9)]

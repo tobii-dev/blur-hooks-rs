@@ -5,7 +5,7 @@ use egui_d3d9::EguiDx9;
 use windows::Win32::{
 	Foundation::{HWND, LPARAM, LRESULT, WPARAM},
 	Graphics::Direct3D9::IDirect3DDevice9,
-	UI::WindowsAndMessaging::{CallWindowProcW, SetWindowLongPtrA, GWLP_WNDPROC, WNDPROC},
+	UI::WindowsAndMessaging::{CallWindowProcW, GWLP_WNDPROC, SetWindowLongPtrA, WNDPROC},
 };
 
 struct MyApp {
@@ -39,7 +39,7 @@ impl MyApp {
 			FN_ORG_WNDPROC = std::mem::transmute(SetWindowLongPtrA(
 				hwnd,
 				GWLP_WNDPROC,
-				Self::wndproc_hook as usize as _,
+				Self::wndproc_hook as *const () as _,
 			));
 		}
 	}
@@ -54,7 +54,7 @@ impl MyApp {
 		if let Some(app) = G_APP.get() {
 			app.lock().gui.wnd_proc(msg, wparam, lparam);
 		}
-		CallWindowProcW(FN_ORG_WNDPROC, hwnd, msg, wparam, lparam)
+		unsafe { CallWindowProcW(FN_ORG_WNDPROC, hwnd, msg, wparam, lparam) }
 	}
 }
 

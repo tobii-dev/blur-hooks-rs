@@ -1,6 +1,6 @@
-use std::ffi::{c_char, CStr};
+use std::ffi::{CStr, c_char};
 
-use windows::{core::PCSTR, Win32::System::LibraryLoader::GetModuleHandleA};
+use windows::{Win32::System::LibraryLoader::GetModuleHandleA, core::PCSTR};
 
 pub fn get_exe_module_ptr() -> *mut std::ffi::c_void {
 	unsafe { GetModuleHandleA(PCSTR::null()) }.unwrap().0 as _

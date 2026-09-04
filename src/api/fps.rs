@@ -9,7 +9,7 @@ pub struct FpsLimiter {
 // TODO: measure rolling average over last 8 frames
 
 impl FpsLimiter {
-	pub fn new() -> Self {
+	pub fn init() -> Self {
 		Self {
 			last_frame: Instant::now(),
 			target_frametime: None,

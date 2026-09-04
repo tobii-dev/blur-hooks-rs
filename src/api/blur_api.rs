@@ -5,11 +5,11 @@ use std::{
 
 use blur_plugins_core::{BlurAPI, BlurEvent, BlurNotification, BlurPlugin, FnPluginInit};
 use windows::{
-	core::s,
 	Win32::{
 		Foundation::HMODULE, Graphics::Direct3D9::IDirect3DDevice9,
 		System::LibraryLoader::GetProcAddress,
 	},
+	core::s,
 };
 
 use super::{
@@ -30,7 +30,7 @@ unsafe impl Sync for MyBlurAPI {}
 static G_BLUR_API: LazyLock<Mutex<MyBlurAPI>> = LazyLock::new(|| {
 	//TODO: Consider init after d3d9dev initialized
 	MyBlurAPI {
-		fps_limiter: FpsLimiter::new(),
+		fps_limiter: FpsLimiter::init(),
 		plugins: vec![],
 		d3d9dev: std::ptr::null_mut(),
 		ptr_base: game::get_exe_module_ptr(),
@@ -110,7 +110,7 @@ impl BlurAPI for MyBlurAPI {
 	}
 
 	fn get_d3d9dev(&self) -> *mut std::ffi::c_void {
-		(&self).d3d9dev as *mut std::ffi::c_void
+		self.d3d9dev as *mut std::ffi::c_void
 	}
 
 	fn get_exe_base_ptr(&self) -> *mut std::ffi::c_void {

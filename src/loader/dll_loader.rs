@@ -1,15 +1,16 @@
 use std::path::Path;
 
-use windows::{core::HSTRING, Win32::System::LibraryLoader::LoadLibraryW};
+use windows::{Win32::System::LibraryLoader::LoadLibraryW, core::HSTRING};
 
 pub fn load_dlls() {
 	let path_dlls = Path::new(".").join("amax").join("dlls");
 	let path_display = path_dlls.display();
 	log::info!("Loading DLLs from: {path_display}");
-	let entries =
-		path_dlls.read_dir().unwrap_or_else(|_| {
-			panic!("Could't access [{path_display}] <Path::read_dir() failed> - Does the directory exist?")
-		});
+	let entries = path_dlls.read_dir().unwrap_or_else(|_| {
+		panic!(
+			"Could't access [{path_display}] <Path::read_dir() failed> - Does the directory exist?"
+		)
+	});
 	for entry in entries.filter_map(|e| e.ok()).map(|e| e.path()) {
 		let Some(ext) = entry.extension() else {
 			continue;
